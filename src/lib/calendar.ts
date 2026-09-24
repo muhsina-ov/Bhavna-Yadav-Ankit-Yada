@@ -1,6 +1,6 @@
 import { invite } from "@/config/invite";
 
-/** "2026-02-14T19:00:00" + "+05:30" -> "20260214T133000Z" */
+/** Convert local ISO string + timezone offset to UTC stamp format: YYYYMMDDTHHMMSSZ */
 function toUtcStamp(local: string, offset: string): string {
   const d = new Date(`${local}${offset}`);
   return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -9,11 +9,23 @@ function toUtcStamp(local: string, offset: string): string {
 export const startStamp = toUtcStamp(invite.start, invite.timeZoneOffset);
 export const endStamp = toUtcStamp(invite.end, invite.timeZoneOffset);
 
+const formattedTitle = `${invite.bride} & ${invite.groom} Wedding Celebration`;
+const formattedDetails = `${invite.invitationNote}\n\nVenue: ${invite.venue.name}, ${invite.venue.address}\nDate: ${invite.dayLine}, ${invite.timeLine}`;
+
 export const googleCalendarUrl = [
   "https://calendar.google.com/calendar/render?action=TEMPLATE",
-  `text=${encodeURIComponent(invite.eventTitle)}`,
+  `text=${encodeURIComponent(formattedTitle)}`,
   `dates=${startStamp}/${endStamp}`,
-  `details=${encodeURIComponent(invite.invitationNote)}`,
+  `details=${encodeURIComponent(formattedDetails)}`,
+  `location=${encodeURIComponent(`${invite.venue.name}, ${invite.venue.address}`)}`,
+].join("&");
+
+export const outlookCalendarUrl = [
+  "https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent",
+  `subject=${encodeURIComponent(formattedTitle)}`,
+  `startdt=${encodeURIComponent(`${invite.start}${invite.timeZoneOffset}`)}`,
+  `enddt=${encodeURIComponent(`${invite.end}${invite.timeZoneOffset}`)}`,
+  `body=${encodeURIComponent(formattedDetails)}`,
   `location=${encodeURIComponent(`${invite.venue.name}, ${invite.venue.address}`)}`,
 ].join("&");
 
@@ -21,20 +33,22 @@ export function downloadIcs() {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//wedding-invite//EN",
+    "PRODID:-//Invitestory//Bhavna & Ankit Wedding//EN",
     "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${startStamp}-invite@wedding`,
+    `UID:${startStamp}-bhavna-ankit@invitestory.in`,
     `DTSTAMP:${startStamp}`,
     `DTSTART:${startStamp}`,
     `DTEND:${endStamp}`,
-    `SUMMARY:${invite.eventTitle}`,
-    `DESCRIPTION:${invite.invitationNote}`,
+    `SUMMARY:${formattedTitle}`,
+    `DESCRIPTION:${formattedDetails.replace(/\n/g, "\\n")}`,
     `LOCATION:${invite.venue.name}\\, ${invite.venue.address}`,
+    "STATUS:CONFIRMED",
     "BEGIN:VALARM",
     "TRIGGER:-P1D",
     "ACTION:DISPLAY",
-    "DESCRIPTION:Reminder",
+    `DESCRIPTION:Reminder: ${formattedTitle} Tomorrow!`,
     "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR",
@@ -46,7 +60,7 @@ export function downloadIcs() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "invitation.ics";
+  a.download = "bhavna-ankit-wedding.ics";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

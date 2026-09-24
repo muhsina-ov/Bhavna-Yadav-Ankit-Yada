@@ -178,7 +178,7 @@
   --color-gold: var(--gold);
   --color-sepia: var(--sepia);
 
-  --font-script: "Parisienne", cursive;
+  --font-script: "Great Vibes", "Alex Brush", cursive, serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-caps: "Josefin Sans", system-ui, sans-serif;
 }
@@ -193,7 +193,8 @@
 @utility script {
   font-family: var(--font-script);
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 1.18;
+  letter-spacing: 0.01em;
 }
 
 @utility grain {

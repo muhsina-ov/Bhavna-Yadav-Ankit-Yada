@@ -2,13 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
-import { cloudflare } from "@cloudflare/vite-plugin";
 
 // True SPA build — no TanStack Start, no Nitro, no SSR. Optimized for Cloudflare Workers Static Assets.
 export default defineConfig({
   base: "/",
   server: { port: 5500 },
-  plugins: [react(), tsconfigPaths(), tailwindcss(), cloudflare()],
+  plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {
     outDir: "dist",
     assetsDir: "assets",
