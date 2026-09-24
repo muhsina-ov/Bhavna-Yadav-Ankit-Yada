@@ -42,11 +42,18 @@ export function InviteFooter() {
           {invite.closing}
         </motion.p>
 
-        <p className="script mt-5 text-5xl leading-[1.1] text-ink sm:text-6xl">
-          <ScriptNames text={invite.groom} />
-          <span className="mx-3 text-gold">&</span>
-          <ScriptNames text={invite.bride} delay={0.3} />
-        </p>
+        {/* Responsive names — stacked on mobile to avoid ornament overlap, inline on desktop */}
+        <div className="script mt-5 flex flex-col items-center gap-1 leading-[1.1] text-ink sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4">
+          <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
+            <ScriptNames text={invite.groom} />
+          </span>
+          <span className="block shrink-0 text-center text-[1.8rem] text-gold sm:text-[2.6rem]" aria-hidden="true">
+            &
+          </span>
+          <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
+            <ScriptNames text={invite.bride} delay={0.3} />
+          </span>
+        </div>
 
         <motion.p
           className="caps mt-8 text-[0.5rem] text-sepia/80"
@@ -55,7 +62,7 @@ export function InviteFooter() {
           viewport={{ once: true }}
           transition={{ duration: 1.2, delay: 0.4 }}
         >
-          {invite.dateLabel} · {invite.venue.name}
+          {invite.dateLabel} · {invite.venue.name} · {(invite as unknown as { city?: string }).city ?? "Ludhiana, Punjab"}
         </motion.p>
         <motion.a
           href="https://www.instagram.com/invitestory.in/"

@@ -89,7 +89,7 @@ export function Envelope({ onOpen }: { onOpen?: () => void }) {
           <Flourish className="w-24 rotate-180 text-gold/50" />
           <p className="caps mt-5 text-[0.6rem] text-ink/80">{invite.dateLabel}</p>
           <p className="caps mt-3 text-[0.48rem] text-sepia/75">{invite.venue.name}</p>
-          <p className="caps mt-2 text-[0.44rem] text-sepia/50">Ahmedabad</p>
+          <p className="caps mt-2 text-[0.44rem] text-sepia/50">Ludhiana, Punjab</p>
         </div>
       </div>
 

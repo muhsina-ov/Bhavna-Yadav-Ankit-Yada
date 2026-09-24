@@ -11,6 +11,7 @@ import { Hero } from "@/components/invite/Hero";
 import { InviteFooter } from "@/components/invite/InviteFooter";
 import { Note } from "@/components/invite/Note";
 import { PhotoSlide } from "@/components/invite/PhotoSlide";
+import { SaveTheDate } from "@/components/invite/SaveTheDate";
 import { ScrollThread } from "@/components/invite/ScrollThread";
 import { Venue } from "@/components/invite/Venue";
 import { invite } from "@/config/invite";
@@ -45,6 +46,7 @@ function Invitation() {
       >
         <Hero ready={opened && !loading} />
         <Note />
+        <SaveTheDate />
         <Countdown />
         <Venue />
         <PhotoSlide />

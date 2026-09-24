@@ -46,23 +46,25 @@ export function PhotoSlide() {
                 loading="lazy"
                 className="w-full object-cover transition-transform duration-700 group-hover:scale-105 select-none max-h-[500px]"
               />
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-ink/70 via-ink/10 to-transparent opacity-85 group-hover:opacity-70 transition-opacity" />
 
-              {/* Corner Florets */}
-              <CornerFloret className="absolute top-3 left-3 size-8 text-gold/80" />
-              <CornerFloret className="absolute top-3 right-3 size-8 -scale-x-100 text-gold/80" />
-              <CornerFloret className="absolute bottom-3 left-3 size-8 -scale-y-100 text-gold/80" />
-              <CornerFloret className="absolute bottom-3 right-3 size-8 -scale-100 text-gold/80" />
+              {/* Corner Florets — inset slightly more and reduced opacity so names never collide (WA0054 fix) */}
+              <CornerFloret className="absolute top-2.5 left-2.5 size-7 text-gold/70 sm:size-8" />
+              <CornerFloret className="absolute top-2.5 right-2.5 size-7 -scale-x-100 text-gold/70 sm:size-8" />
+              <CornerFloret className="absolute bottom-2.5 left-2.5 size-7 -scale-y-100 text-gold/50 sm:size-8 sm:text-gold/70" />
+              <CornerFloret className="absolute bottom-2.5 right-2.5 size-7 -scale-100 text-gold/50 sm:size-8 sm:text-gold/70" />
 
-              {/* Photo Overlay Caption */}
-              <div className="absolute bottom-4 inset-x-0 text-center px-4">
-                <Flourish className="mx-auto w-20 text-gold/80 mb-1" />
-                <p className="script text-2xl text-paper drop-shadow-md sm:text-3xl">
-                  {invite.groom} &amp; {invite.bride}
-                </p>
-                <p className="caps text-[0.52rem] text-gold/90 tracking-widest mt-0.5">
-                  {invite.dayLine}
-                </p>
+              {/* Photo Overlay Caption — inset higher and with pill backdrop to avoid floret overlap; names wrap cleanly */}
+              <div className="absolute inset-x-3 bottom-3 text-center sm:inset-x-4 sm:bottom-4">
+                <div className="mx-auto max-w-[92%] rounded-xl bg-ink/45 px-3 py-2.5 backdrop-blur-[2px] sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+                  <Flourish className="mx-auto mb-1 hidden w-16 text-gold/70 sm:block sm:w-20" />
+                  <p className="script text-balance break-words text-[1.35rem] leading-none text-paper drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] sm:text-3xl">
+                    {invite.groom} &amp; {invite.bride}
+                  </p>
+                  <p className="caps mt-1 text-[0.5rem] tracking-[0.18em] text-gold/90 sm:mt-0.5 sm:text-[0.52rem]">
+                    {invite.dayLine}
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>

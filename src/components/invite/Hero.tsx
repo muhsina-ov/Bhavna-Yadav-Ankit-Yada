@@ -114,14 +114,22 @@ export function Hero({ ready = true }: { ready?: boolean }) {
         Join us for the engagement party of
       </motion.p>
 
+      {/* Couple names — responsive: stacked on mobile to avoid overlap with florets/frames, inline on desktop.
+          Prevents the WA0054 overlap where script names collided with the gold border / CornerFloret. */}
       <motion.h1
-        className="script mt-3 text-[3.25rem] leading-[1.05] text-ink sm:text-7xl"
+        className="script mt-4 flex w-full max-w-[22rem] flex-col items-center gap-0.5 px-4 leading-[1.1] text-ink sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5 sm:gap-y-1 sm:px-6 sm:leading-[1.05]"
         initial="hidden"
         animate={anim}
       >
-        <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
-        <span className="mx-3 text-gold sm:mx-5">&</span>
-        <ScriptNames text={invite.bride} delay={1.2} trigger={anim} />
+        <span className="block max-w-full break-words text-center text-[2.7rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
+          <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
+        </span>
+        <span className="block shrink-0 text-center text-[1.9rem] leading-none text-gold sm:text-[3rem] sm:leading-none" aria-hidden="true">
+          &
+        </span>
+        <span className="block max-w-full break-words text-center text-[2.7rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
+          <ScriptNames text={invite.bride} delay={1.2} trigger={anim} />
+        </span>
       </motion.h1>
 
       <motion.button

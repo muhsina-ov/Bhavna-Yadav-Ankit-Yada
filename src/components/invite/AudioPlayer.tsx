@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Volume2, VolumeX, Music, Disc } from "lucide-react";
+import { motion } from "motion/react";
+import { Volume2, VolumeX } from "lucide-react";
 import { invite } from "@/config/invite";
 import defaultMusic from "@/assets/music.mp3";
 
@@ -98,66 +98,34 @@ export function AudioPlayer() {
         className="hidden"
       />
 
-      <div className="fixed bottom-20 right-6 z-50 flex items-center gap-2 select-none">
-        {/* Helper badge indicating music status */}
-        <AnimatePresence>
-          {!playing && (
-            <motion.button
-              type="button"
-              onClick={toggleMusic}
-              initial={{ opacity: 0, x: 10, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 10, scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 rounded-full bg-paper/95 border border-gold/50 px-3.5 py-2 shadow-lg backdrop-blur-md cursor-pointer hover:bg-gold/10 transition-colors"
-            >
-              <Music className="size-3.5 text-gold animate-bounce" />
-              <span className="text-[0.65rem] font-caps tracking-wider text-ink font-medium">
-                Tap for Music 🎵
-              </span>
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        {/* Floating audio toggle button */}
+      {/* Clean, minimal floating audio control — elegant, non-intrusive, matches wedding paper & gold theme */}
+      <div className="fixed bottom-6 right-4 z-50 select-none sm:bottom-6 sm:right-6">
         <motion.button
           type="button"
           onClick={toggleMusic}
-          whileTap={{ scale: 0.88 }}
-          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          whileHover={{ scale: 1.04 }}
           aria-label={playing ? "Pause music" : "Play music"}
-          className={`relative flex size-13 items-center justify-center rounded-full border shadow-xl backdrop-blur-md transition-all duration-300 cursor-pointer ${
+          className={`relative flex size-11 items-center justify-center rounded-full border backdrop-blur-md transition-all duration-300 cursor-pointer shadow-[0_8px_20px_-10px_rgba(60,45,25,0.4)] ${
             playing
-              ? "border-gold/60 bg-gold/25 text-ink ring-2 ring-gold/40 shadow-gold/20"
-              : "border-sepia/30 bg-paper/90 text-sepia hover:bg-gold/15"
+              ? "border-gold/40 bg-paper/90 text-gold"
+              : "border-gold/20 bg-paper/85 text-sepia/70 hover:border-gold/30 hover:bg-paper hover:text-sepia"
           }`}
         >
           {playing ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            >
-              <Disc className="size-6 text-gold" />
-            </motion.div>
+            <Volume2 className="size-[18px]" strokeWidth={1.75} />
           ) : (
-            <VolumeX className="size-6 text-sepia/80" />
+            <VolumeX className="size-[18px]" strokeWidth={1.75} />
           )}
 
-          {/* Soundwave animation ring when playing */}
+          {/* Subtle pulse ring when playing — soft gold, not aggressive */}
           {playing && (
-            <>
-              <motion.span
-                className="absolute inset-0 rounded-full border-2 border-gold/60"
-                animate={{ scale: [1, 1.45, 1], opacity: [0.7, 0, 0.7] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.span
-                className="absolute inset-[-4px] rounded-full border border-gold/30"
-                animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-              />
-            </>
+            <motion.span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full border border-gold/25"
+              animate={{ scale: [1, 1.35], opacity: [0.45, 0] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
+            />
           )}
         </motion.button>
       </div>

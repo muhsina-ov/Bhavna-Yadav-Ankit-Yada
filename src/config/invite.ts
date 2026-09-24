@@ -19,12 +19,14 @@ export const invite = {
     "With the blessings of our families, we invite you to share in the joy of their journey together — an evening of love, laughter, and cherished memories.",
   venue: {
     name: "Aspire Hotel and Resorts",
-    address: "Aspire Hotel and Resorts",
+    address: "Aspire Hotel and Resorts, Ludhiana, Punjab",
     /** Used for the Google Maps deep link */
-    query: "Aspire Hotel and Resorts",
+    query: "Aspire Hotel and Resorts, Ludhiana, Punjab",
     lat: 30.824024200439453,
     lng: 75.78478240966797,
   },
+  /** Display location for envelopes and footers */
+  city: "Ludhiana, Punjab",
   closing: "See you there",
   mapsLink: "https://www.google.com/maps?q=30.824024200439453,75.78478240966797",
   backgroundMusic: "https://www.instagram.com/p/Dc5gQd7M90r/",
