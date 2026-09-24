@@ -17,22 +17,7 @@ import { invite } from "@/config/invite";
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
-const title = `${invite.groom} & ${invite.bride} — ${invite.dayLine.split(",")[1]?.trim() ?? invite.dateLabel}`;
-const description = `${invite.groom} & ${invite.bride} invite you to ${invite.eventTitle} on ${invite.dayLine} at ${invite.venue.name}.`;
-
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: `${title} · Save the Date` },
-      { name: "description", content: description },
-      { property: "og:title", content: `${title} · Save the Date` },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-  }),
   component: Invitation,
 });
 

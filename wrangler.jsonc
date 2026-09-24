@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "bhavna-yadav-ankit-yada",
+  "compatibility_date": "2026-09-24",
+  "compatibility_flags": ["nodejs_compat"],
+  // Static SPA — Workers Static Assets serves `dist/` directly.
+  // SPA fallback ensures TanStack Router client-side navigation works on refresh/deep links.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true,
+    // Uncomment when you add a Worker script (e.g. for API routes):
+    // "logs": { "enabled": true, "head_sampling_rate": 1 },
+    // "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+  }
+}
