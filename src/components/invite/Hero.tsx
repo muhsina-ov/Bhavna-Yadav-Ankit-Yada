@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, useTransform } from "motion/react";
 import { useCallback, useRef, useState } from "react";
-import coupleImg from "@/assets/image1.jpeg";
+import welcomeImg from "@/assets/IMG-20260924-WA0053.jpg";
 import { invite } from "@/config/invite";
 import { useParallax } from "@/hooks/use-parallax";
 import { getLenis } from "@/lib/lenis";
@@ -88,15 +88,15 @@ export function Hero({ ready = true }: { ready?: boolean }) {
         >
           <div className="relative overflow-hidden rounded-xl border border-gold/20">
             <motion.img
-              src={coupleImg}
-              alt={`Photo of ${invite.groom} and ${invite.bride}`}
+              src={welcomeImg}
+              alt={`Welcome artwork — ${invite.bride} & ${invite.groom}`}
               width={1024}
-              height={1024}
+              height={576}
               draggable={false}
-              className="mx-auto w-full object-cover transition-transform duration-700 hover:scale-105 select-none max-h-[380px] sm:max-h-[460px]"
+              className="mx-auto w-full h-auto object-contain transition-transform duration-700 hover:scale-105 select-none max-h-[380px] sm:max-h-[460px]"
             />
             {/* Soft vignette gradient */}
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-paper/40 via-transparent to-paper/20" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-paper/30 via-transparent to-paper/20" />
             <CornerFloret className="absolute top-2 left-2 size-8 text-gold/70" />
             <CornerFloret className="absolute top-2 right-2 size-8 -scale-x-100 text-gold/70" />
             <CornerFloret className="absolute bottom-2 left-2 size-8 -scale-y-100 text-gold/70" />
