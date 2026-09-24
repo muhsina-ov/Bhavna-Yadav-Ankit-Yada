@@ -13,7 +13,8 @@
     "deploy:dry": "vite build && wrangler deploy --dry-run",
     "cf-typegen": "wrangler types",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "postinstall": "vite build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
