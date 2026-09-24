@@ -9,6 +9,11 @@
     "directory": "./dist",
     "not_found_handling": "single-page-application"
   },
+  // Custom domain — will activate once DNS for invitingyou.top is pointed to this Worker.
+  // If zone not in this account, add CNAME in invitingyou.top dashboard (see README) then enable.
+  "routes": [
+    { "pattern": "bhavna-yadav-ankit-yadav.invitingyou.top/*", "zone_name": "invitingyou.top" }
+  ],
   "observability": {
     "enabled": true,
     // Uncomment when you add a Worker script (e.g. for API routes):
