@@ -9,7 +9,7 @@ function toUtcStamp(local: string, offset: string): string {
 export const startStamp = toUtcStamp(invite.start, invite.timeZoneOffset);
 export const endStamp = toUtcStamp(invite.end, invite.timeZoneOffset);
 
-const formattedTitle = `${invite.bride} & ${invite.groom} Wedding Celebration`;
+const formattedTitle = `${invite.groom} & ${invite.bride} Wedding Celebration`;
 const formattedDetails = `${invite.invitationNote}\n\nVenue: ${invite.venue.name}, ${invite.venue.address}\nDate: ${invite.dayLine}, ${invite.timeLine}`;
 
 export const googleCalendarUrl = [
@@ -33,7 +33,7 @@ export function downloadIcs() {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Invitestory//Bhavna & Ankit Wedding//EN",
+    "PRODID:-//Invitestory//Ankit & Bhavna Wedding//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

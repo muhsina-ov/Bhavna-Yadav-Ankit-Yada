@@ -89,7 +89,7 @@ export function Hero({ ready = true }: { ready?: boolean }) {
           <div className="relative overflow-hidden rounded-xl border border-gold/20">
             <motion.img
               src={welcomeImg}
-              alt={`Welcome artwork — ${invite.bride} & ${invite.groom}`}
+              alt={`Welcome artwork — ${invite.groom} & ${invite.bride}`}
               width={1024}
               height={576}
               draggable={false}
@@ -121,14 +121,14 @@ export function Hero({ ready = true }: { ready?: boolean }) {
         initial="hidden"
         animate={anim}
       >
-        <span className="block max-w-full break-words text-center text-[2.8rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
-          <ScriptNames text={invite.bride} delay={0.85} trigger={anim} />
-        </span>
-        <span className="block shrink-0 text-center text-[2rem] leading-none text-gold sm:text-[3.2rem] sm:leading-none" aria-hidden="true">
-          &amp;
-        </span>
-        <span className="block max-w-full break-words text-center text-[2.8rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
-          <ScriptNames text={invite.groom} delay={1.2} trigger={anim} />
+<span className="block max-w-full break-words text-center text-[2.8rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
+           <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
+         </span>
+         <span className="block shrink-0 text-center text-[2rem] leading-none text-gold sm:text-[3.2rem] sm:leading-none" aria-hidden="true">
+           &amp;
+         </span>
+         <span className="block max-w-full break-words text-center text-[2.8rem] leading-[1.1] sm:text-7xl sm:leading-[1.05]">
+           <ScriptNames text={invite.bride} delay={1.2} trigger={anim} />
         </span>
       </motion.h1>
 

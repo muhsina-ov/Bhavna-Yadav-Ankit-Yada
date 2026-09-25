@@ -14,7 +14,7 @@ export const invite = {
   timeZoneOffset: "+05:30",
   dayLine: "Tuesday, 14th October 2026",
   timeLine: "7:00 PM onwards",
-  eventTitle: "Welcome to the celebrations of Bhavna & Ankit",
+  eventTitle: "Welcome to the celebrations of Ankit & Bhavna",
   invitationNote:
     "With the blessings of our families, we invite you to share in the joy of their journey together — an evening of love, laughter, and cherished memories.",
   venue: {

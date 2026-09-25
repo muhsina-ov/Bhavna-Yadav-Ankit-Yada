@@ -22,7 +22,7 @@ export function Note() {
             <div className="relative overflow-hidden rounded-xl border border-gold/25">
               <img
                 src={baatPakkiImg}
-                alt="Baat Pakki — Bhavna Yadav & Ankit Yadav"
+                alt="Baat Pakki — Ankit Yadav & Bhavna Yadav"
                 width={1024}
                 height={576}
                 loading="eager"

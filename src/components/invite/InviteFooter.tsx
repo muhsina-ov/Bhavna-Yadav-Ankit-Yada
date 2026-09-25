@@ -45,13 +45,13 @@ export function InviteFooter() {
         {/* Responsive names — stacked on mobile to avoid ornament overlap, inline on desktop */}
         <div className="script mt-5 flex flex-col items-center gap-1 leading-[1.1] text-ink sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4">
           <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
-            <ScriptNames text={invite.bride} />
-          </span>
+<ScriptNames text={invite.groom} />
+</span>
           <span className="block shrink-0 text-center text-[1.8rem] text-gold sm:text-[2.6rem]" aria-hidden="true">
             &amp;
           </span>
           <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
-            <ScriptNames text={invite.groom} delay={0.3} />
+            <ScriptNames text={invite.bride} delay={0.3} />
           </span>
         </div>
 
