@@ -178,7 +178,7 @@
   --color-gold: var(--gold);
   --color-sepia: var(--sepia);
 
-  --font-script: "Great Vibes", "Alex Brush", cursive, serif;
+  --font-script: "Cinzel", serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-caps: "Josefin Sans", system-ui, sans-serif;
 }
@@ -419,11 +419,9 @@
   }
 }
 
-/* Gold gradient text */
-@utility text-gold-gradient {
-  background: linear-gradient(135deg, var(--gold) 0%, oklch(0.82 0.1 82) 50%, var(--gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Highlighted date text */
+@utility text-highlight {
+  color: var(--gold);
+  text-shadow: 0 0 12px oklch(0.72 0.09 82 / 0.4), 0 1px 2px oklch(0.22 0.012 60 / 0.3);
 }
 

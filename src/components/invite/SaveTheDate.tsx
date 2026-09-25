@@ -27,7 +27,7 @@ export function SaveTheDate() {
 
           <Flourish className="mx-auto mt-5 w-24 text-gold/50 sm:w-32" />
 
-          <p className="script mt-5 text-2xl text-sepia sm:text-3xl">{invite.dayLine}</p>
+          <p className="script mt-5 text-2xl text-highlight sm:text-3xl">{invite.dayLine}</p>
           <p className="caps mt-3 text-[0.6rem] text-sepia/80">{invite.timeLine}</p>
           <p className="caps mt-2 text-[0.5rem] tracking-[0.2em] text-sepia/60">
             {(invite as unknown as { city?: string }).city ?? "Ludhiana, Punjab"} · {invite.venue.name}

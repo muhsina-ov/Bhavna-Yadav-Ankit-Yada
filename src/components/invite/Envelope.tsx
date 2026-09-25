@@ -190,7 +190,7 @@ export function Envelope({ onOpen }: { onOpen?: () => void }) {
                       aria-hidden="true"
                       className="absolute inset-[7px] rounded-full border border-paper/35"
                     />
-                    <span className="script relative text-[1.9rem] leading-none tracking-tight drop-shadow-[0_1px_0_oklch(0.5_0.09_66)]">
+                    <span className="script text-uppercase relative text-[1.9rem] leading-none tracking-tight drop-shadow-[0_1px_0_oklch(0.5_0.09_66)]">
                       {monogram}
                     </span>
                     {/* foil shimmer sweep */}
