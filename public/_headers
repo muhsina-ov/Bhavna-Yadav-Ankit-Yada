@@ -7,12 +7,12 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-/og-baat-pakki-1200x630.jpg
+/og-baat-pakki-*-1200x630.jpg
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
   Content-Type: image/jpeg
   Access-Control-Allow-Origin: *
 
-/og-baat-pakki-800x800.jpg
+/og-baat-pakki-*-800x800.jpg
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
   Content-Type: image/jpeg
   Access-Control-Allow-Origin: *

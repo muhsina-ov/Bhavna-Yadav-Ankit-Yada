@@ -56,6 +56,11 @@ F_SANS = os.path.join(FONT_DIR, "JosefinSans.ttf")  # letter-spaced caps
 GOLD_RULE = (GOLD[0], GOLD[1], GOLD[2], 150)
 _cache = {}
 
+# Bump this whenever the artwork changes. WhatsApp caches a preview against the
+# image URL, so serving new pixels from an unchanged filename leaves every
+# existing chat bubble showing the old card. A new name forces a re-fetch.
+VERSION = "v2"
+
 
 # ── config + fonts ─────────────────────────────────────────────────────────
 def read_config():
@@ -349,7 +354,7 @@ def build_wide(cfg, out):
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 118
-    mono_max, names_max = 128, 124
+    mono_max, names_max = 146, 112
 
     stack(box, [
         (26, 8, lambda y: ornament(d, cx, y, GOLD_SOFT)),
@@ -385,7 +390,7 @@ def build_square(cfg, out):
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 104
-    mono_max, names_max = 150, 130
+    mono_max, names_max = 168, 118
 
     stack(box, [
         (30, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
@@ -443,8 +448,8 @@ def main():
     ensure_fonts()
     cfg = read_config()
     print("groom=%s  bride=%s" % (cfg["groom"], cfg["bride"]))
-    build_wide(cfg, os.path.join(PUBLIC, "og-baat-pakki-1200x630.jpg"))
-    build_square(cfg, os.path.join(PUBLIC, "og-baat-pakki-800x800.jpg"))
+    build_wide(cfg, os.path.join(PUBLIC, "og-baat-pakki-%s-1200x630.jpg" % VERSION))
+    build_square(cfg, os.path.join(PUBLIC, "og-baat-pakki-%s-800x800.jpg" % VERSION))
     build_icon(cfg, os.path.join(PUBLIC, "apple-touch-icon.png"))
 
 
