@@ -115,20 +115,25 @@ export function Hero({ ready = true }: { ready?: boolean }) {
       </motion.p>
 
       {/* Couple names — responsive: stacked on mobile to avoid overlap with florets/frames, inline on desktop.
-          Prevents the WA0054 overlap where script names collided with the gold border / CornerFloret. */}
+          Prevents the WA0054 overlap where script names collided with the gold border / CornerFloret.
+          `names` is the brush hand from the client reference; `items-baseline` on the row so the
+          ampersand sits on the names' baseline rather than being centred on their ink. */}
       <motion.h1
-        className="script mt-4 flex w-full max-w-[22rem] flex-col items-center gap-0.5 px-4 leading-[1.1] text-ink sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5 sm:gap-y-1 sm:px-6 sm:leading-[1.05]"
+        className="names mt-6 flex w-full max-w-[19rem] flex-col items-center gap-0 px-4 text-ink sm:max-w-none sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-center sm:gap-x-4 sm:gap-y-0 sm:px-6"
         initial="hidden"
         animate={anim}
       >
-<span className="block max-w-full break-words text-center text-[2.1rem] leading-[1.1] sm:text-4xl sm:leading-[1.05]">
-           <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
-         </span>
-         <span className="block shrink-0 text-center text-[1.6rem] leading-none text-gold sm:text-[2rem] sm:leading-none" aria-hidden="true">
-           &amp;
-         </span>
-         <span className="block max-w-full break-words text-center text-[2.1rem] leading-[1.1] sm:text-4xl sm:leading-[1.05]">
-           <ScriptNames text={invite.bride} delay={1.2} trigger={anim} />
+        <span className="block max-w-full break-words text-center text-[2.75rem] sm:text-[3.1rem]">
+          <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
+        </span>
+        <span
+          className="block shrink-0 text-center text-[1.7rem] text-gold sm:text-[1.9rem]"
+          aria-hidden="true"
+        >
+          &amp;
+        </span>
+        <span className="block max-w-full break-words text-center text-[2.75rem] sm:text-[3.1rem]">
+          <ScriptNames text={invite.bride} delay={1.2} trigger={anim} />
         </span>
       </motion.h1>
 

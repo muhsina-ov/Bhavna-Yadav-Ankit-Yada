@@ -178,6 +178,7 @@
   --color-gold: var(--gold);
   --color-sepia: var(--sepia);
 
+  --font-names: "Alex Brush", "Snell Roundhand", "Segoe Script", cursive;
   --font-script: "Cinzel", serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-caps: "Josefin Sans", system-ui, sans-serif;
@@ -194,6 +195,22 @@
   font-family: var(--font-script);
   font-weight: 400;
   line-height: 1.18;
+  letter-spacing: 0.01em;
+}
+
+/**
+ * The couple's names, in the brush hand from the client's reference artwork.
+ *
+ * Alex Brush carries its flourishes well outside the em box — cap ink reaches
+ * 0.67em above the baseline and the swash on "Y"/"g" drops 0.25em below — so
+ * the line-height is set to 1.06 to keep the leading optically tight without
+ * the two lines of a stacked lockup colliding. `script` (Cinzel) stays on
+ * dates, venue and section headings, which the reference sets as serif caps.
+ */
+@utility names {
+  font-family: var(--font-names);
+  font-weight: 400;
+  line-height: 1.06;
   letter-spacing: 0.01em;
 }
 

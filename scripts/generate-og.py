@@ -46,8 +46,8 @@ WARM = (253, 246, 234, 255)
 HAZE = (150, 122, 96, 255)
 
 FONT_SOURCES = {
-    "GreatVibes-Regular.ttf":
-        "https://github.com/google/fonts/raw/main/ofl/greatvibes/GreatVibes-Regular.ttf",
+    "AlexBrush-Regular.ttf":
+        "https://github.com/google/fonts/raw/main/ofl/alexbrush/AlexBrush-Regular.ttf",
     "CormorantGaramond.ttf":
         "https://github.com/google/fonts/raw/main/ofl/cormorantgaramond/CormorantGaramond%5Bwght%5D.ttf",
     "PlayfairDisplay.ttf":
@@ -56,7 +56,11 @@ FONT_SOURCES = {
         "https://github.com/google/fonts/raw/main/ofl/josefinsans/JosefinSans%5Bwght%5D.ttf",
 }
 
-F_SCRIPT = os.path.join(FONT_DIR, "GreatVibes-Regular.ttf")  # names + ampersand
+# Alex Brush is the brush hand the client picked in the reference artwork, and it
+# is the face the invitation itself now uses for the couple's names, so the card
+# and the page agree. It is also a heavy face - thick downstrokes - so unlike a
+# fine script it keeps a solid silhouette at WhatsApp's preview width.
+F_SCRIPT = os.path.join(FONT_DIR, "AlexBrush-Regular.ttf")  # names + ampersand
 F_SERIF = os.path.join(FONT_DIR, "CormorantGaramond.ttf")  # tagline
 F_DISPLAY = os.path.join(FONT_DIR, "PlayfairDisplay.ttf")  # lining figures for the date
 F_SANS = os.path.join(FONT_DIR, "JosefinSans.ttf")  # letter-spaced caps
@@ -79,12 +83,14 @@ def read_config():
     venue_city = re.search(r"city:\s*\"([^\"]+)\"", src)
     groom, bride = field("groom"), field("bride")
     return {
-        # First names only: they are what the card shows in the script line.
+        # First names only: what the 180px icon has room for.
         "groom": groom.split()[0],
         "bride": bride.split()[0],
-        # Full names, surnames included, for the capitalised lockup.
-        "groom_full": groom.upper(),
-        "bride_full": bride.upper(),
+        # Full names, surnames included, in the config's own casing. The card
+        # sets these in a brush script, which must not be shouted - uppercasing
+        # Alex Brush turns the capitals into unreadable swashy forms.
+        "groom_full": groom,
+        "bride_full": bride,
         "date": field("dateLabel"),  # 14.10.26
         "day": field("dayLine"),
         "time": field("timeLine"),
@@ -214,19 +220,6 @@ def background(w, h, fy, blur, blur_amt, warm=52, vig=46):
     return vignette(base, vig)
 
 
-def ink_box(f, text, lift=0.0):
-    """(top, bottom) offsets of a text run's real ink, relative to the point it
-    is drawn at. Pass `lift` for runs drawn on a shifted baseline.
-
-    Script faces like Great Vibes have ascenders and flourishes that reach well
-    outside the nominal em box, and the 'lm' anchor sits at the middle of the
-    ascender-to-descender box rather than the middle of the ink - so spacing has
-    to come from measured glyphs, not from the point size.
-    """
-    _, y0, _, y1 = f.getbbox(text, anchor="lm")
-    return y0 + lift, y1 + lift
-
-
 def stack(box, rows):
     """Lay out (measure, gap, draw) rows vertically centred inside box.
 
@@ -244,148 +237,80 @@ def stack(box, rows):
         y += h / 2 + g
 
 
-def fit_script(text, max_w, max_size, step=4):
-    size = max_size
-    while size > 24 and font(F_SCRIPT, size).getlength(text) > max_w:
+def ink_span(f, text):
+    """(top, bottom) of a text run's real ink, relative to its own baseline.
+
+    `top` is negative for anything reaching above the baseline. Faces like
+    Alex Brush carry ascenders, swashes and descenders well outside the nominal
+    em box, so the spacing of a lockup has to come from measured glyphs rather
+    than from the point size - and measuring against the baseline (not against
+    an em-box anchor) is what keeps the measured block the same height as the
+    drawn one.
+    """
+    _, top, _, bottom = f.getbbox(text, anchor="ls")
+    return top, bottom
+
+
+def lockup_metrics(
+    max_w, max_h, face, lines, start, floor, gap_ratio=0.12, step=2, variation=None
+):
+    """Largest point size at which a stacked lockup fits the box on both axes.
+
+    `lines` is [(text, size_ratio, fill), ...] in draw order, where `size_ratio`
+    scales that line off the lockup's point size; optional 4th and 5th elements
+    override `face` and `variation` for that line alone (used to set one line in
+    a different hand). Returns `(size, gap, spans, height)`, with each span a
+    `(font, width, top, bottom)` tuple describing that line's ink against its
+    own baseline.
+
+    Height is a real constraint here, not just width: a brush script is a wide
+    face (`Bhavna Yadav` runs about 5.4em in Alex Brush), so two stacked lines
+    plus the ampersand run out of a 630px card's vertical room well before they
+    run out of its width. A width-only fit overflows the panel.
+    """
+    size = start
+    metrics = None
+    while size >= floor:
+        gap = size * gap_ratio
+        spans, height, widest = [], 0.0, 0.0
+        for line in lines:
+            text, ratio, fill = line[0], line[1], line[2]
+            f = font(
+                line[3] if len(line) > 3 else face,
+                max(8, int(size * ratio)),
+                line[4] if len(line) > 4 else variation,
+            )
+            top, bottom = ink_span(f, text)
+            width = f.getlength(text)
+            spans.append((f, width, top, bottom))
+            height += bottom - top
+            widest = max(widest, width)
+        metrics = (size, gap, spans, height + gap * (len(lines) - 1))
+        if widest <= max_w and metrics[3] <= max_h:
+            break
         size -= step
-    return font(F_SCRIPT, size), size
+    return metrics
 
 
-def names_metrics(max_w, max_size, cfg):
-    """Resolve fitted fonts, gaps and the true ink span of the name line."""
-    gap = max_size * 0.20
-    for size in range(max_size, 24, -4):
-        fa = font(F_SCRIPT, size)
-        fb = font(F_SCRIPT, int(size * 0.88))
-        if (
-            fa.getlength(cfg["groom"])
-            + gap
-            + fb.getlength("&")
-            + gap
-            + fa.getlength(cfg["bride"])
-            <= max_w
-        ):
-            break
-    lift = size * 0.06
-    ta, ba = ink_box(fa, cfg["groom"])
-    tb, bb = ink_box(fb, "&", lift)
-    return fa, fb, gap, size, min(ta, tb), max(ba, bb)
+def lockup_height(max_w, max_h, face, lines, start, floor, **kw):
+    """Total ink height of a stacked lockup, including its inter-line gaps."""
+    return lockup_metrics(max_w, max_h, face, lines, start, floor, **kw)[3]
 
 
-def names_row(d, cx, y, max_w, max_size, cfg):
-    """`Groom & Bride` in Great Vibes with a rose ampersand, auto-fitted.
+def lockup(d, cx, y, max_w, max_h, face, lines, start, floor, **kw):
+    """Draw a stacked lockup with the whole block's ink centred on `y`.
 
-    `y` is the centre of the line's ink, so the row above and below can be
-    spaced off real glyph extents.
+    Lines are laid out baseline-first from the top of the block, so a line's
+    flourishes can never eat into its neighbour's space.
     """
-    fa, fb, gap, size, top, bot = names_metrics(max_w, max_size, cfg)
-    y -= (top + bot) / 2  # re-centre from the em box onto the ink
-    wa, wb, wc = fa.getlength(cfg["groom"]), fb.getlength("&"), fa.getlength(cfg["bride"])
-    x = cx - (wa + gap + wb + gap + wc) / 2
-    d.text((x, y), cfg["groom"], font=fa, fill=INK, anchor="lm")
-    x += wa + gap
-    d.text((x, y + size * 0.06), "&", font=fb, fill=ROSE, anchor="lm")
-    x += wb + gap
-    d.text((x, y), cfg["bride"], font=fa, fill=INK, anchor="lm")
-
-
-def names_height(max_w, max_size, cfg):
-    _, _, _, _, top, bot = names_metrics(max_w, max_size, cfg)
-    return bot - top
-
-
-def monogram_metrics(max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
-    """Resolve fitted fonts, gaps and the true ink span of the `A & B` monogram."""
-    left, right = initials
-    gap = max_size * gap_ratio
-    size = max_size
-    while size > 16:
-        fa = font(F_DISPLAY, size, "SemiBold")
-        fb = font(F_SCRIPT, int(size * amp_ratio))
-        if fa.getlength(left) + gap + fb.getlength("&") + gap + fa.getlength(right) <= max_w:
-            break
-        size -= 2
-    fa = font(F_DISPLAY, size, "SemiBold")
-    fb = font(F_SCRIPT, int(size * amp_ratio))
-    lift = -size * 0.02  # the ampersand is drawn slightly raised
-    ta, ba = ink_box(fa, left + right)
-    tb, bb = ink_box(fb, "&", lift)
-    return fa, fb, gap, size, min(ta, tb), max(ba, bb)
-
-
-def monogram(d, cx, y, max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
-    """`A & B` — Playfair caps with a rose script ampersand, auto-fitted.
-
-    Two initials hold their weight at thumbnail sizes, where the thin strokes
-    of the full script names start to disappear.
-    """
-    left, right = initials
-    fa, fb, gap, size, top, bot = monogram_metrics(
-        max_w, max_size, initials, gap_ratio, amp_ratio
+    size, gap, spans, height = lockup_metrics(
+        max_w, max_h, face, lines, start, floor, **kw
     )
-    y -= (top + bot) / 2  # re-centre from the em box onto the ink
-    wa, wb, wc = fa.getlength(left), fb.getlength("&"), fa.getlength(right)
-    x = cx - (wa + gap + wb + gap + wc) / 2
-    d.text((x, y), left, font=fa, fill=INK, anchor="lm")
-    x += wa + gap
-    d.text((x, y + size * 0.02), "&", font=fb, fill=ROSE, anchor="lm")
-    x += wb + gap
-    d.text((x, y), right, font=fa, fill=INK, anchor="lm")
-    return size
-
-
-def monogram_height(max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
-    _, _, _, _, top, bot = monogram_metrics(
-        max_w, max_size, initials, gap_ratio, amp_ratio
-    )
-    return bot - top
-
-
-def caps_metrics(max_w, max_size, left, right, amp_ratio=0.52):
-    """Fit a stacked `LEFT` / `&` / `RIGHT` lockup in Playfair Display caps.
-
-    Caps rather than the script face: at WhatsApp's preview width the script's
-    thin strokes break up, whereas caps hold a solid silhouette. The whole
-    point of the lockup is the full name, so it gets the widest size the
-    column allows rather than being fitted down to first names.
-    """
-    for size in range(max_size, 20, -2):
-        fa = font(F_DISPLAY, size, "SemiBold")
-        if max(fa.getlength(left), fa.getlength(right)) <= max_w:
-            break
-        if size <= 34:  # hard floor so a long name never fills the card edge to edge
-            break
-    fb = font(F_SCRIPT, int(size * amp_ratio))
-    fa = font(F_DISPLAY, size, "SemiBold")
-    ta, ba = ink_box(fa, left)
-    tb, bb = ink_box(fa, right)
-    tc, bc = ink_box(fb, "&")
-    return fa, fb, size, (ta, ba), (tc, bc), (tb, bb)
-
-
-def caps_height(max_w, max_size, left, right, amp_ratio=0.52):
-    """Total ink height of the three-line lockup, including the inter-line gaps."""
-    fa, fb, size, (ta, ba), (tc, bc), (tb, bb) = caps_metrics(
-        max_w, max_size, left, right, amp_ratio
-    )
-    gap = size * 0.10
-    return (ba - ta) + gap + (bc - tc) + gap + (bb - tb)
-
-
-def caps_lockup(d, cx, y, max_w, max_size, left, right, amp_ratio=0.52):
-    """Draw the stacked lockup so the whole block's ink is centred on `y`."""
-    fa, fb, size, (ta, ba), (tc, bc), (tb, bb) = caps_metrics(
-        max_w, max_size, left, right, amp_ratio
-    )
-    gap = size * 0.10
-    total = (ba - ta) + gap + (bc - tc) + gap + (bb - tb)
-    top = y - total / 2
-
-    d.text((cx, top + (ta + ba) / 2), left, font=fa, fill=INK, anchor="mm")
-    mid = top + (ba - ta) + gap + (tc + bc) / 2
-    d.text((cx, mid), "&", font=fb, fill=ROSE, anchor="mm")
-    last = top + (ba - ta) + gap + (bc - tc) + gap + (tb + bb) / 2
-    d.text((cx, last), right, font=fa, fill=INK, anchor="mm")
+    top = y - height / 2
+    for line, (f, width, above, below) in zip(lines, spans):
+        d.text((cx - width / 2, top - above), line[0], font=f, fill=line[2],
+               anchor="ls")
+        top += (below - above) + gap
     return size
 
 
@@ -407,14 +332,23 @@ def build_wide(cfg, out):
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 118
     g, b = cfg["groom_full"], cfg["bride_full"]
-    name_max = min(92, int(inner * 0.108))
+    # The couple's names, stacked, in the same brush hand the invitation uses.
+    # Full names, not first names: the surnames are the point of a wedding card,
+    # and at this size the pair still fills the column (508 of 710px).
+    #
+    # The panel is 562px tall and the other seven rows claim ~296 of it, so 236
+    # is what the three-line lockup gets once it is given room to breathe.
+    name_max_h = 236
+    name_lines = [(g, 1.0, INK), ("&", 0.44, ROSE), (b, 1.0, INK)]
 
     stack(box, [
         (26, 8, lambda y: ornament(d, cx, y, GOLD_SOFT)),
         (24, 26, lambda y: draw_tracked(
             d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
-        (lambda: caps_height(inner, name_max, g, b), 16,
-         lambda y: caps_lockup(d, cx, y, inner, name_max, g, b)),
+        (lambda: lockup_height(inner, name_max_h, F_SCRIPT, name_lines, 120, 28,
+                               gap_ratio=0.11), 16,
+         lambda y: lockup(d, cx, y, inner, name_max_h, F_SCRIPT, name_lines, 120, 28,
+                          gap_ratio=0.11)),
         (16, 18, lambda y: rule(d, cx, y, 236, GOLD_RULE)),
         (56, 11, lambda y: draw_tracked(
             d, cx, y, "14 · 10 · 2026",
@@ -433,7 +367,7 @@ def build_wide(cfg, out):
 
 
 def build_icon(cfg, out):
-    """180x180 apple-touch-icon — a monogram, since the script caps are too
+    """180x180 apple-touch-icon — a monogram, since the brush hand is too
     wide to fit legibly at this size."""
     s = 180
     base = background(s, s, fy=0.5, blur=3, blur_amt=0.9, warm=40, vig=0)
@@ -449,9 +383,14 @@ def build_icon(cfg, out):
     )
 
     # First names only here: at 180px the surnames drop below legibility, and
-    # this is the one place the lockup must stay readable at ~40px.
+    # this is the one place the lockup must stay readable at ~40px. Serif caps
+    # rather than the brush hand for the same reason - a 40px script is mush.
     cx = s / 2
-    caps_lockup(d, cx, 74, 136, 40, cfg["groom"].upper(), cfg["bride"].upper())
+    lockup(d, cx, 74, 136, 90, F_DISPLAY, [
+        (cfg["groom"].upper(), 1.0, INK),
+        ("&", 0.52, ROSE, F_SCRIPT, None),
+        (cfg["bride"].upper(), 1.0, INK),
+    ], 40, 34, gap_ratio=0.10, variation="SemiBold")
     rule(d, cx, 122, 84, GOLD_RULE)
     draw_tracked(d, cx, 143, "14 · 10 · 26", font(F_SANS, 13, "Medium"), GOLD, 2.4)
 

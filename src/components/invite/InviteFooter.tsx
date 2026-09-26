@@ -42,15 +42,19 @@ export function InviteFooter() {
           {invite.closing}
         </motion.p>
 
-        {/* Responsive names — stacked on mobile to avoid ornament overlap, inline on desktop */}
-        <div className="script mt-5 flex flex-col items-center gap-1 leading-[1.1] text-ink sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-4">
-          <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
-<ScriptNames text={invite.groom} />
-</span>
-          <span className="block shrink-0 text-center text-[1.8rem] text-gold sm:text-[2.6rem]" aria-hidden="true">
+        {/* Responsive names — stacked on mobile to avoid ornament overlap, inline on desktop.
+            Same brush hand as the hero; `items-baseline` seats the ampersand on the names' baseline. */}
+        <div className="names mt-5 flex flex-col items-center gap-0 text-ink sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-center sm:gap-x-4 sm:gap-y-0">
+          <span className="block max-w-full break-words text-center text-[3rem] sm:text-[3rem] lg:text-[3.6rem]">
+            <ScriptNames text={invite.groom} />
+          </span>
+          <span
+            className="block shrink-0 text-center text-[1.8rem] text-gold sm:text-[1.9rem] lg:text-[2.1rem]"
+            aria-hidden="true"
+          >
             &amp;
           </span>
-          <span className="block max-w-full break-words text-center text-[2.6rem] sm:text-6xl">
+          <span className="block max-w-full break-words text-center text-[3rem] sm:text-[3rem] lg:text-[3.6rem]">
             <ScriptNames text={invite.bride} delay={0.3} />
           </span>
         </div>

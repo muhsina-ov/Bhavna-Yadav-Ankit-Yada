@@ -58,7 +58,7 @@ export function PhotoSlide() {
               <div className="absolute inset-x-3 bottom-3 text-center sm:inset-x-4 sm:bottom-4">
                 <div className="mx-auto max-w-[92%] rounded-xl bg-ink/45 px-3 py-2.5 backdrop-blur-[2px] sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
                   <Flourish className="mx-auto mb-1 hidden w-16 text-gold/70 sm:block sm:w-20" />
-                  <p className="script text-balance break-words text-[1.35rem] leading-none text-paper drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] sm:text-3xl">
+                  <p className="names text-balance break-words text-[1.7rem] text-paper drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] sm:text-[2.6rem]">
                     {invite.groom} &amp; {invite.bride}
                   </p>
                   <p className="caps mt-1 text-[0.5rem] tracking-[0.18em] text-gold/90 sm:mt-0.5 sm:text-[0.52rem]">
