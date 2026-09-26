@@ -33,3 +33,7 @@ dist-ssr
 
 # Cloudflare / bun - use npm on CI
 bun.lock
+
+# Fonts cached by scripts/generate-og.py
+scripts/.og-fonts/
+
