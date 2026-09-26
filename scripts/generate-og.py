@@ -81,6 +81,7 @@ def read_config():
         "time": field("timeLine"),
         "venue": venue_name.group(1) if venue_name else "",
         "city": venue_city.group(1) if venue_city else "",
+        "initials": (groom[0].upper(), bride[0].upper()),
     }
 
 
@@ -204,19 +205,45 @@ def background(w, h, fy, blur, blur_amt, warm=52, vig=46):
     return vignette(base, vig)
 
 
+def ink_box(f, text, lift=0.0):
+    """(top, bottom) offsets of a text run's real ink, relative to the point it
+    is drawn at. Pass `lift` for runs drawn on a shifted baseline.
+
+    Script faces like Great Vibes have ascenders and flourishes that reach well
+    outside the nominal em box, and the 'lm' anchor sits at the middle of the
+    ascender-to-descender box rather than the middle of the ink - so spacing has
+    to come from measured glyphs, not from the point size.
+    """
+    _, y0, _, y1 = f.getbbox(text, anchor="lm")
+    return y0 + lift, y1 + lift
+
+
 def stack(box, rows):
-    """Lay out (height, gap, draw) rows vertically centred inside box."""
+    """Lay out (measure, gap, draw) rows vertically centred inside box.
+
+    `measure` is a fixed height or a callable returning the row's true ink
+    height. Each draw fn receives the centre of its own ink and is responsible
+    for centring on it.
+    """
     x0, y0, x1, y1 = box
-    total = sum(h for h, _, _ in rows) + sum(g for _, g, _ in rows)
+    heights = [(m() if callable(m) else m) for m, _, _ in rows]
+    total = sum(heights) + sum(g for _, g, _ in rows)
     y = y0 + ((y1 - y0) - total) / 2
-    for h, g, fn in rows:
+    for h, (_, g, fn) in zip(heights, rows):
         y += h / 2
         fn(y)
         y += h / 2 + g
 
 
-def names_row(d, cx, y, max_w, max_size, cfg):
-    """`Groom & Bride` in Great Vibes with a rose ampersand, auto-fitted."""
+def fit_script(text, max_w, max_size, step=4):
+    size = max_size
+    while size > 24 and font(F_SCRIPT, size).getlength(text) > max_w:
+        size -= step
+    return font(F_SCRIPT, size), size
+
+
+def names_metrics(max_w, max_size, cfg):
+    """Resolve fitted fonts, gaps and the true ink span of the name line."""
     gap = max_size * 0.20
     for size in range(max_size, 24, -4):
         fa = font(F_SCRIPT, size)
@@ -230,9 +257,21 @@ def names_row(d, cx, y, max_w, max_size, cfg):
             <= max_w
         ):
             break
-    wa = fa.getlength(cfg["groom"])
-    wb = fb.getlength("&")
-    wc = fa.getlength(cfg["bride"])
+    lift = size * 0.06
+    ta, ba = ink_box(fa, cfg["groom"])
+    tb, bb = ink_box(fb, "&", lift)
+    return fa, fb, gap, size, min(ta, tb), max(ba, bb)
+
+
+def names_row(d, cx, y, max_w, max_size, cfg):
+    """`Groom & Bride` in Great Vibes with a rose ampersand, auto-fitted.
+
+    `y` is the centre of the line's ink, so the row above and below can be
+    spaced off real glyph extents.
+    """
+    fa, fb, gap, size, top, bot = names_metrics(max_w, max_size, cfg)
+    y -= (top + bot) / 2  # re-centre from the em box onto the ink
+    wa, wb, wc = fa.getlength(cfg["groom"]), fb.getlength("&"), fa.getlength(cfg["bride"])
     x = cx - (wa + gap + wb + gap + wc) / 2
     d.text((x, y), cfg["groom"], font=fa, fill=INK, anchor="lm")
     x += wa + gap
@@ -241,12 +280,56 @@ def names_row(d, cx, y, max_w, max_size, cfg):
     d.text((x, y), cfg["bride"], font=fa, fill=INK, anchor="lm")
 
 
-def one_name(d, cx, y, max_w, max_size, name):
+def names_height(max_w, max_size, cfg):
+    _, _, _, _, top, bot = names_metrics(max_w, max_size, cfg)
+    return bot - top
+
+
+def monogram_metrics(max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
+    """Resolve fitted fonts, gaps and the true ink span of the `A & B` monogram."""
+    left, right = initials
+    gap = max_size * gap_ratio
     size = max_size
-    while size > 20 and font(F_SCRIPT, size).getlength(name) > max_w:
-        size -= 4
-    f = font(F_SCRIPT, size)
-    d.text((cx - f.getlength(name) / 2, y), name, font=f, fill=INK, anchor="lm")
+    while size > 16:
+        fa = font(F_DISPLAY, size, "SemiBold")
+        fb = font(F_SCRIPT, int(size * amp_ratio))
+        if fa.getlength(left) + gap + fb.getlength("&") + gap + fa.getlength(right) <= max_w:
+            break
+        size -= 2
+    fa = font(F_DISPLAY, size, "SemiBold")
+    fb = font(F_SCRIPT, int(size * amp_ratio))
+    lift = -size * 0.02  # the ampersand is drawn slightly raised
+    ta, ba = ink_box(fa, left + right)
+    tb, bb = ink_box(fb, "&", lift)
+    return fa, fb, gap, size, min(ta, tb), max(ba, bb)
+
+
+def monogram(d, cx, y, max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
+    """`A & B` — Playfair caps with a rose script ampersand, auto-fitted.
+
+    Two initials hold their weight at thumbnail sizes, where the thin strokes
+    of the full script names start to disappear.
+    """
+    left, right = initials
+    fa, fb, gap, size, top, bot = monogram_metrics(
+        max_w, max_size, initials, gap_ratio, amp_ratio
+    )
+    y -= (top + bot) / 2  # re-centre from the em box onto the ink
+    wa, wb, wc = fa.getlength(left), fb.getlength("&"), fa.getlength(right)
+    x = cx - (wa + gap + wb + gap + wc) / 2
+    d.text((x, y), left, font=fa, fill=INK, anchor="lm")
+    x += wa + gap
+    d.text((x, y + size * 0.02), "&", font=fb, fill=ROSE, anchor="lm")
+    x += wb + gap
+    d.text((x, y), right, font=fa, fill=INK, anchor="lm")
+    return size
+
+
+def monogram_height(max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
+    _, _, _, _, top, bot = monogram_metrics(
+        max_w, max_size, initials, gap_ratio, amp_ratio
+    )
+    return bot - top
 
 
 def save_jpeg(img, path, quality=88):
@@ -261,30 +344,34 @@ def build_wide(cfg, out):
     """1200x630 — the ratio WhatsApp renders a link preview at full width."""
     w, h = 1200, 630
     base = background(w, h, fy=0.42, blur=7, blur_amt=0.92)
-    box = (214, 58, 986, 572)
+    box = (186, 34, 1014, 596)
     panel(base, box)
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 118
+    mono_max, names_max = 128, 124
 
     stack(box, [
-        (26, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
-        (26, 12, lambda y: draw_tracked(
-            d, cx, y, "BAAT PAKKI", font(F_SANS, 17, "Medium"), GOLD, 6.5)),
-        (152, 20, lambda y: names_row(d, cx, y, inner, 158, cfg)),
-        (20, 20, lambda y: rule(d, cx, y, 250, GOLD_RULE)),
-        (58, 13, lambda y: draw_tracked(
-            d, cx, y, "14 \u00b7 10 \u00b7 2026",
-            font(F_DISPLAY, 53, "SemiBold"), INK, 4)),
-        (26, 13, lambda y: draw_tracked(
-            d, cx, y, "TUESDAY \u00b7 7:00 PM ONWARDS",
-            font(F_SANS, 18, "Medium"), INK_SOFT, 5)),
-        (24, 15, lambda y: draw_tracked(
-            d, cx, y, "%s \u00b7 %s" % (cfg["venue"].upper(), cfg["city"].upper()),
-            font(F_SANS, 14, "Light"), HAZE, 4.2)),
-        (26, 0, lambda y: draw_tracked(
+        (26, 8, lambda y: ornament(d, cx, y, GOLD_SOFT)),
+        (24, 10, lambda y: draw_tracked(
+            d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
+        (lambda: monogram_height(inner, mono_max, cfg["initials"]), 14,
+         lambda y: monogram(d, cx, y, inner, mono_max, cfg["initials"])),
+        (16, 18, lambda y: rule(d, cx, y, 236, GOLD_RULE)),
+        (lambda: names_height(inner, names_max, cfg), 18,
+         lambda y: names_row(d, cx, y, inner, names_max, cfg)),
+        (56, 11, lambda y: draw_tracked(
+            d, cx, y, "14 · 10 · 2026",
+            font(F_DISPLAY, 50, "SemiBold"), INK, 4)),
+        (25, 10, lambda y: draw_tracked(
+            d, cx, y, "TUESDAY · 7:00 PM ONWARDS",
+            font(F_SANS, 17, "Medium"), INK_SOFT, 5)),
+        (23, 12, lambda y: draw_tracked(
+            d, cx, y, "%s · %s" % (cfg["venue"].upper(), cfg["city"].upper()),
+            font(F_SANS, 13, "Light"), HAZE, 4.2)),
+        (25, 0, lambda y: draw_tracked(
             d, cx, y, "TWO FAMILIES, ONE BOND",
-            font(F_SERIF, 22, "Medium"), ROSE, 2.2)),
+            font(F_SERIF, 21, "Medium"), ROSE, 2.2)),
     ])
     save_jpeg(base, out)
 
@@ -293,29 +380,30 @@ def build_square(cfg, out):
     """800x800 — square fallback for clients that prefer a 1:1 thumbnail."""
     w = h = 800
     base = background(w, h, fy=0.5, blur=8, blur_amt=0.95, warm=54, vig=50)
-    box = (58, 60, 742, 740)
+    box = (52, 48, 748, 752)
     panel(base, box)
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 104
+    mono_max, names_max = 150, 130
 
     stack(box, [
-        (28, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
-        (28, 12, lambda y: draw_tracked(
-            d, cx, y, "BAAT PAKKI", font(F_SANS, 17, "Medium"), GOLD, 6.5)),
-        (124, 4, lambda y: one_name(d, cx, y, inner, 142, cfg["groom"])),
-        (62, 2, lambda y: draw_tracked(
-            d, cx, y, "&", font(F_SCRIPT, 78), ROSE)),
-        (124, 20, lambda y: one_name(d, cx, y, inner, 142, cfg["bride"])),
-        (20, 22, lambda y: rule(d, cx, y, 230, GOLD_RULE)),
-        (54, 12, lambda y: draw_tracked(
-            d, cx, y, "14 \u00b7 10 \u00b7 2026",
-            font(F_DISPLAY, 48, "SemiBold"), INK, 4)),
+        (30, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
         (26, 12, lambda y: draw_tracked(
-            d, cx, y, "TUESDAY \u00b7 7:00 PM ONWARDS",
+            d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
+        (lambda: monogram_height(inner, mono_max, cfg["initials"]), 20,
+         lambda y: monogram(d, cx, y, inner, mono_max, cfg["initials"])),
+        (18, 20, lambda y: rule(d, cx, y, 250, GOLD_RULE)),
+        (lambda: names_height(inner, names_max, cfg), 22,
+         lambda y: names_row(d, cx, y, inner, names_max, cfg)),
+        (58, 14, lambda y: draw_tracked(
+            d, cx, y, "14 · 10 · 2026",
+            font(F_DISPLAY, 52, "SemiBold"), INK, 4)),
+        (27, 12, lambda y: draw_tracked(
+            d, cx, y, "TUESDAY · 7:00 PM ONWARDS",
             font(F_SANS, 17, "Medium"), INK_SOFT, 5)),
-        (24, 14, lambda y: draw_tracked(
-            d, cx, y, "%s \u00b7 %s" % (cfg["venue"].upper(), cfg["city"].upper()),
+        (25, 15, lambda y: draw_tracked(
+            d, cx, y, "%s · %s" % (cfg["venue"].upper(), cfg["city"].upper()),
             font(F_SANS, 13, "Light"), HAZE, 4.2)),
         (26, 0, lambda y: draw_tracked(
             d, cx, y, "TWO FAMILIES, ONE BOND",
@@ -324,7 +412,7 @@ def build_square(cfg, out):
     save_jpeg(base, out)
 
 
-def build_icon(out):
+def build_icon(cfg, out):
     """180x180 apple-touch-icon — a monogram, since the script caps are too
     wide to fit legibly at this size."""
     s = 180
@@ -340,21 +428,9 @@ def build_icon(out):
         (16, 16, s - 17, s - 17), radius=23, outline=(GOLD[0], GOLD[1], GOLD[2], 70)
     )
 
-    cx, gap = s / 2, 7
-    for size in range(60, 18, -2):
-        fa = font(F_DISPLAY, size, "SemiBold")
-        fb = font(F_SCRIPT, int(size * 0.62))
-        if fa.getlength("A") + gap + fb.getlength("&") + gap + fa.getlength("B") <= 118:
-            break
-    wa, wb = fa.getlength("A"), fb.getlength("&")
-    wc = fa.getlength("B")
-    x = cx - (wa + gap + wb + gap + wc) / 2
-    d.text((x, 76), "A", font=fa, fill=INK, anchor="lm")
-    x += wa + gap
-    d.text((x, 74), "&", font=fb, fill=ROSE, anchor="lm")
-    x += wb + gap
-    d.text((x, 76), "B", font=fa, fill=INK, anchor="lm")
-    rule(d, cx, 112, 84, GOLD_RULE)
+    cx = s / 2
+    monogram(d, cx, 80, 132, 74, cfg["initials"], gap_ratio=0.12)
+    rule(d, cx, 118, 88, GOLD_RULE)
     draw_tracked(d, cx, 136, "14 \u00b7 10 \u00b7 26", font(F_SANS, 14, "Medium"), GOLD, 2.6)
 
     base.convert("RGB").save(out, "PNG", optimize=True)
@@ -369,7 +445,7 @@ def main():
     print("groom=%s  bride=%s" % (cfg["groom"], cfg["bride"]))
     build_wide(cfg, os.path.join(PUBLIC, "og-baat-pakki-1200x630.jpg"))
     build_square(cfg, os.path.join(PUBLIC, "og-baat-pakki-800x800.jpg"))
-    build_icon(os.path.join(PUBLIC, "apple-touch-icon.png"))
+    build_icon(cfg, os.path.join(PUBLIC, "apple-touch-icon.png"))
 
 
 if __name__ == "__main__":
