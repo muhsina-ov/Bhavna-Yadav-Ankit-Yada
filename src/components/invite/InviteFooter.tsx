@@ -49,7 +49,7 @@ export function InviteFooter() {
             <ScriptNames text={invite.groom} />
           </span>
           <span
-            className="block shrink-0 text-center text-[1.8rem] text-gold sm:text-[1.9rem] lg:text-[2.1rem]"
+            className="block shrink-0 text-center text-[2.1rem] text-gold sm:text-[2.15rem] lg:text-[2.4rem]"
             aria-hidden="true"
           >
             &amp;

@@ -127,7 +127,7 @@ export function Hero({ ready = true }: { ready?: boolean }) {
           <ScriptNames text={invite.groom} delay={0.85} trigger={anim} />
         </span>
         <span
-          className="block shrink-0 text-center text-[1.7rem] text-gold sm:text-[1.9rem]"
+          className="block shrink-0 text-center text-[2rem] text-gold sm:text-[2.15rem]"
           aria-hidden="true"
         >
           &amp;
