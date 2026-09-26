@@ -59,7 +59,7 @@ _cache = {}
 # Bump this whenever the artwork changes. WhatsApp caches a preview against the
 # image URL, so serving new pixels from an unchanged filename leaves every
 # existing chat bubble showing the old card. A new name forces a re-fetch.
-VERSION = "v2"
+VERSION = "v3"
 
 
 # ── config + fonts ─────────────────────────────────────────────────────────
@@ -76,11 +76,12 @@ def read_config():
     venue_city = re.search(r"city:\s*\"([^\"]+)\"", src)
     groom, bride = field("groom"), field("bride")
     return {
-        # surnames are dropped here on purpose: a WhatsApp preview renders this
-        # image ~400px wide, and two long names shrink the script to the point
-        # where it stops reading. Surnames live in <title>/og:title instead.
+        # First names only: they are what the card shows in the script line.
         "groom": groom.split()[0],
         "bride": bride.split()[0],
+        # Full names, surnames included, for the capitalised lockup.
+        "groom_full": groom.upper(),
+        "bride_full": bride.upper(),
         "date": field("dateLabel"),  # 14.10.26
         "day": field("dayLine"),
         "time": field("timeLine"),
@@ -337,6 +338,54 @@ def monogram_height(max_w, max_size, initials, gap_ratio=0.10, amp_ratio=0.62):
     return bot - top
 
 
+def caps_metrics(max_w, max_size, left, right, amp_ratio=0.52):
+    """Fit a stacked `LEFT` / `&` / `RIGHT` lockup in Playfair Display caps.
+
+    Caps rather than the script face: at WhatsApp's preview width the script's
+    thin strokes break up, whereas caps hold a solid silhouette. The whole
+    point of the lockup is the full name, so it gets the widest size the
+    column allows rather than being fitted down to first names.
+    """
+    for size in range(max_size, 20, -2):
+        fa = font(F_DISPLAY, size, "SemiBold")
+        if max(fa.getlength(left), fa.getlength(right)) <= max_w:
+            break
+        if size <= 34:  # hard floor so a long name never fills the card edge to edge
+            break
+    fb = font(F_SCRIPT, int(size * amp_ratio))
+    fa = font(F_DISPLAY, size, "SemiBold")
+    ta, ba = ink_box(fa, left)
+    tb, bb = ink_box(fa, right)
+    tc, bc = ink_box(fb, "&")
+    return fa, fb, size, (ta, ba), (tc, bc), (tb, bb)
+
+
+def caps_height(max_w, max_size, left, right, amp_ratio=0.52):
+    """Total ink height of the three-line lockup, including the inter-line gaps."""
+    fa, fb, size, (ta, ba), (tc, bc), (tb, bb) = caps_metrics(
+        max_w, max_size, left, right, amp_ratio
+    )
+    gap = size * 0.10
+    return (ba - ta) + gap + (bc - tc) + gap + (bb - tb)
+
+
+def caps_lockup(d, cx, y, max_w, max_size, left, right, amp_ratio=0.52):
+    """Draw the stacked lockup so the whole block's ink is centred on `y`."""
+    fa, fb, size, (ta, ba), (tc, bc), (tb, bb) = caps_metrics(
+        max_w, max_size, left, right, amp_ratio
+    )
+    gap = size * 0.10
+    total = (ba - ta) + gap + (bc - tc) + gap + (bb - tb)
+    top = y - total / 2
+
+    d.text((cx, top + (ta + ba) / 2), left, font=fa, fill=INK, anchor="mm")
+    mid = top + (ba - ta) + gap + (tc + bc) / 2
+    d.text((cx, mid), "&", font=fb, fill=ROSE, anchor="mm")
+    last = top + (ba - ta) + gap + (bc - tc) + gap + (tb + bb) / 2
+    d.text((cx, last), right, font=fa, fill=INK, anchor="mm")
+    return size
+
+
 def save_jpeg(img, path, quality=88):
     img.convert("RGB").save(
         path, "JPEG", quality=quality, optimize=True, progressive=True, subsampling=1
@@ -354,17 +403,16 @@ def build_wide(cfg, out):
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 118
-    mono_max, names_max = 146, 112
+    g, b = cfg["groom_full"], cfg["bride_full"]
+    name_max = min(92, int(inner * 0.108))
 
     stack(box, [
         (26, 8, lambda y: ornament(d, cx, y, GOLD_SOFT)),
-        (24, 10, lambda y: draw_tracked(
+        (24, 26, lambda y: draw_tracked(
             d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
-        (lambda: monogram_height(inner, mono_max, cfg["initials"]), 14,
-         lambda y: monogram(d, cx, y, inner, mono_max, cfg["initials"])),
+        (lambda: caps_height(inner, name_max, g, b), 16,
+         lambda y: caps_lockup(d, cx, y, inner, name_max, g, b)),
         (16, 18, lambda y: rule(d, cx, y, 236, GOLD_RULE)),
-        (lambda: names_height(inner, names_max, cfg), 18,
-         lambda y: names_row(d, cx, y, inner, names_max, cfg)),
         (56, 11, lambda y: draw_tracked(
             d, cx, y, "14 · 10 · 2026",
             font(F_DISPLAY, 50, "SemiBold"), INK, 4)),
@@ -390,17 +438,16 @@ def build_square(cfg, out):
     d = ImageDraw.Draw(base)
     cx = (box[0] + box[2]) / 2
     inner = (box[2] - box[0]) - 104
-    mono_max, names_max = 168, 118
+    g, b = cfg["groom_full"], cfg["bride_full"]
+    name_max = min(104, int(inner * 0.118))
 
     stack(box, [
         (30, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
-        (26, 12, lambda y: draw_tracked(
+        (26, 26, lambda y: draw_tracked(
             d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
-        (lambda: monogram_height(inner, mono_max, cfg["initials"]), 20,
-         lambda y: monogram(d, cx, y, inner, mono_max, cfg["initials"])),
-        (18, 20, lambda y: rule(d, cx, y, 250, GOLD_RULE)),
-        (lambda: names_height(inner, names_max, cfg), 22,
-         lambda y: names_row(d, cx, y, inner, names_max, cfg)),
+        (lambda: caps_height(inner, name_max, g, b), 22,
+         lambda y: caps_lockup(d, cx, y, inner, name_max, g, b)),
+        (18, 22, lambda y: rule(d, cx, y, 250, GOLD_RULE)),
         (58, 14, lambda y: draw_tracked(
             d, cx, y, "14 · 10 · 2026",
             font(F_DISPLAY, 52, "SemiBold"), INK, 4)),
@@ -433,10 +480,12 @@ def build_icon(cfg, out):
         (16, 16, s - 17, s - 17), radius=23, outline=(GOLD[0], GOLD[1], GOLD[2], 70)
     )
 
+    # First names only here: at 180px the surnames drop below legibility, and
+    # this is the one place the lockup must stay readable at ~40px.
     cx = s / 2
-    monogram(d, cx, 80, 132, 74, cfg["initials"], gap_ratio=0.12)
-    rule(d, cx, 118, 88, GOLD_RULE)
-    draw_tracked(d, cx, 136, "14 \u00b7 10 \u00b7 26", font(F_SANS, 14, "Medium"), GOLD, 2.6)
+    caps_lockup(d, cx, 74, 136, 40, cfg["groom"].upper(), cfg["bride"].upper())
+    rule(d, cx, 122, 84, GOLD_RULE)
+    draw_tracked(d, cx, 143, "14 · 10 · 26", font(F_SANS, 13, "Medium"), GOLD, 2.4)
 
     base.convert("RGB").save(out, "PNG", optimize=True)
     print("wrote %s (%d KB)" % (os.path.basename(out), os.path.getsize(out) // 1024))

@@ -21,14 +21,6 @@
   Cache-Control: public, max-age=604800
   Content-Type: image/png
 
-/og-image.jpg
-  Cache-Control: public, max-age=86400
-  Content-Type: image/jpeg
-
-/og-image-square.jpg
-  Cache-Control: public, max-age=86400
-  Content-Type: image/jpeg
-
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 
