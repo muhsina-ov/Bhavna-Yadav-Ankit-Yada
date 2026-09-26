@@ -7,15 +7,10 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# One day, not seven: a superseded OG card is cached by WhatsApp against its
-# URL, so a long TTL keeps the old artwork reachable long after it is deleted
-# from the repo. A short TTL lets a mistake expire instead of lingering.
-/og-baat-pakki-*-1200x630.jpg
-  Cache-Control: public, max-age=86400, stale-while-revalidate=3600
-  Content-Type: image/jpeg
-  Access-Control-Allow-Origin: *
-
-/og-baat-pakki-*-800x800.jpg
+# One day, not a week: WhatsApp caches a preview against its image URL, so a
+# long TTL keeps a superseded card reachable long after the file is gone.
+# A short TTL lets a mistake expire instead of lingering.
+/og-card.jpg
   Cache-Control: public, max-age=86400, stale-while-revalidate=3600
   Content-Type: image/jpeg
   Access-Control-Allow-Origin: *

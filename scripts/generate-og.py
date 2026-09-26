@@ -1,13 +1,21 @@
-"""Generate the WhatsApp-optimised link-preview images for this invite.
+"""Generate the link-preview images for this invite.
 
-    python scripts/generate-og.py
+    npm run og
 
 Reads names + venue from src/config/invite.ts and the artwork from
-public/baat-pakki.jpg, then writes:
+public/baat-pakki.jpg, then writes exactly two files:
 
-    public/og-baat-pakki-1200x630.jpg   primary preview (1.91:1, WhatsApp/FB/LinkedIn)
-    public/og-baat-pakki-800x800.jpg    square preview / WhatsApp thumbnail fallback
-    public/apple-touch-icon.png         180x180 home-screen icon
+    public/og-card.jpg             1200x630 preview (WhatsApp/Facebook/LinkedIn)
+    public/apple-touch-icon.png    180x180 home-screen icon
+
+One preview image on purpose. Two og:image tags make crawlers disagree about
+which one wins, so the same link can preview as either. If you ever need a
+square crop for a status post, generate it separately rather than adding a
+second og:image.
+
+The filename is deliberately stable. WhatsApp caches a preview against the
+page URL, not the image URL, so renaming the file does not force a refresh for
+links already shared - a new share URL is the only thing that does.
 
 Requires Pillow. Google Fonts are downloaded on first run into
 scripts/.og-fonts/ (git-ignored).
@@ -55,11 +63,6 @@ F_SANS = os.path.join(FONT_DIR, "JosefinSans.ttf")  # letter-spaced caps
 
 GOLD_RULE = (GOLD[0], GOLD[1], GOLD[2], 150)
 _cache = {}
-
-# Bump this whenever the artwork changes. WhatsApp caches a preview against the
-# image URL, so serving new pixels from an unchanged filename leaves every
-# existing chat bubble showing the old card. A new name forces a re-fetch.
-VERSION = "v3"
 
 
 # ── config + fonts ─────────────────────────────────────────────────────────
@@ -393,7 +396,7 @@ def save_jpeg(img, path, quality=88):
     print("wrote %s (%d KB)" % (os.path.basename(path), os.path.getsize(path) // 1024))
 
 
-# ── the three outputs ──────────────────────────────────────────────────────
+# ── the two outputs ────────────────────────────────────────────────────────
 def build_wide(cfg, out):
     """1200x630 — the ratio WhatsApp renders a link preview at full width."""
     w, h = 1200, 630
@@ -423,41 +426,6 @@ def build_wide(cfg, out):
             d, cx, y, "%s · %s" % (cfg["venue"].upper(), cfg["city"].upper()),
             font(F_SANS, 13, "Light"), HAZE, 4.2)),
         (25, 0, lambda y: draw_tracked(
-            d, cx, y, "TWO FAMILIES, ONE BOND",
-            font(F_SERIF, 21, "Medium"), ROSE, 2.2)),
-    ])
-    save_jpeg(base, out)
-
-
-def build_square(cfg, out):
-    """800x800 — square fallback for clients that prefer a 1:1 thumbnail."""
-    w = h = 800
-    base = background(w, h, fy=0.5, blur=8, blur_amt=0.95, warm=54, vig=50)
-    box = (52, 48, 748, 752)
-    panel(base, box)
-    d = ImageDraw.Draw(base)
-    cx = (box[0] + box[2]) / 2
-    inner = (box[2] - box[0]) - 104
-    g, b = cfg["groom_full"], cfg["bride_full"]
-    name_max = min(104, int(inner * 0.118))
-
-    stack(box, [
-        (30, 12, lambda y: ornament(d, cx, y, GOLD_SOFT)),
-        (26, 26, lambda y: draw_tracked(
-            d, cx, y, "BAAT PAKKI", font(F_SANS, 16, "Medium"), GOLD, 6.5)),
-        (lambda: caps_height(inner, name_max, g, b), 22,
-         lambda y: caps_lockup(d, cx, y, inner, name_max, g, b)),
-        (18, 22, lambda y: rule(d, cx, y, 250, GOLD_RULE)),
-        (58, 14, lambda y: draw_tracked(
-            d, cx, y, "14 · 10 · 2026",
-            font(F_DISPLAY, 52, "SemiBold"), INK, 4)),
-        (27, 12, lambda y: draw_tracked(
-            d, cx, y, "TUESDAY · 7:00 PM ONWARDS",
-            font(F_SANS, 17, "Medium"), INK_SOFT, 5)),
-        (25, 15, lambda y: draw_tracked(
-            d, cx, y, "%s · %s" % (cfg["venue"].upper(), cfg["city"].upper()),
-            font(F_SANS, 13, "Light"), HAZE, 4.2)),
-        (26, 0, lambda y: draw_tracked(
             d, cx, y, "TWO FAMILIES, ONE BOND",
             font(F_SERIF, 21, "Medium"), ROSE, 2.2)),
     ])
@@ -497,8 +465,7 @@ def main():
     ensure_fonts()
     cfg = read_config()
     print("groom=%s  bride=%s" % (cfg["groom"], cfg["bride"]))
-    build_wide(cfg, os.path.join(PUBLIC, "og-baat-pakki-%s-1200x630.jpg" % VERSION))
-    build_square(cfg, os.path.join(PUBLIC, "og-baat-pakki-%s-800x800.jpg" % VERSION))
+    build_wide(cfg, os.path.join(PUBLIC, "og-card.jpg"))
     build_icon(cfg, os.path.join(PUBLIC, "apple-touch-icon.png"))
 
 
