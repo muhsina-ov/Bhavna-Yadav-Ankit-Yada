@@ -1,5 +1,3 @@
-off
-C:\Python313\python.exe
--m
-http.server
-8080
+@echo off
+cd /d "%~dp0"
+python -m http.server 8080
