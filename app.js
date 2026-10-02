@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (diff <= 0) {
       const container = document.getElementById('countdownContainer');
       if (container) {
-        container.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif; font-size:24px; color:#8C3D52; font-weight:700;">The Auspicious Wedding Day is Today!</div>';
+        container.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif; font-size:24px; color:#8C3D52; font-weight:700;">See you there On behalf of<br><span style="font-size:18px;font-style:italic;color:#6C513F;">MR. Ram Sanjivan Yadav &amp; MRS. Rani Yadav</span></div>';
       }
       return;
     }
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const blessingCountElem = document.getElementById('blessing-count');
   const coupleContainer = document.querySelector('.couple-single-photo-wrap');
 
-  let blessingCount = parseInt(localStorage.getItem('bhavya_sanyam_blessings') || '452', 10);
+  let blessingCount = parseInt(localStorage.getItem('bhavna_ankit_blessings') || localStorage.getItem('bhavya_sanyam_blessings') || '452', 10);
   if (blessingCountElem) {
     blessingCountElem.textContent = blessingCount.toLocaleString();
   }
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (blessingCountElem) {
       blessingCountElem.textContent = blessingCount.toLocaleString();
     }
-    localStorage.setItem('bhavya_sanyam_blessings', blessingCount.toString());
+    localStorage.setItem('bhavna_ankit_blessings', blessingCount.toString());
 
     if (showerBtn) {
       showerBtn.style.transform = 'scale(0.96)';

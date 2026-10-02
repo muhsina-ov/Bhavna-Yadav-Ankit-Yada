@@ -526,15 +526,22 @@ body.video-active #weiAudioBtn {
 
 /* Couple Names with Soft Script Typography */
 .couple-headline-wrap {
-  margin: 24px 0 18px;
+  margin: 22px 0 16px;
   animation: heroFadeIn 1.8s 0.5s ease backwards;
+}
+
+.couple-person {
+  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .couple-headline {
   font-family: var(--font-script);
-  font-size: 64px;
+  font-size: 58px;
   font-weight: 400;
-  line-height: 1.05;
+  line-height: 1.1;
   color: var(--theme-pink-dark);
   background: var(--rose-grey-gradient);
   -webkit-background-clip: text;
@@ -543,14 +550,27 @@ body.video-active #weiAudioBtn {
   padding: 0 10px;
 }
 
+.couple-parentage {
+  font-family: var(--font-serif-luxury);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--theme-grey-medium);
+  margin-top: 3px;
+  line-height: 1.4;
+  padding: 0 14px;
+  max-width: 480px;
+  text-align: center;
+}
+
 .ampersand {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 36px;
+  font-size: 32px;
   color: var(--theme-pink-primary);
   display: block;
-  margin: 2px 0;
+  margin: 4px 0;
   opacity: 0.9;
 }
 
@@ -1806,6 +1826,24 @@ body.video-active #weiAudioBtn {
   z-index: 2;
 }
 
+.footer-closing-note {
+  font-family: var(--font-serif-luxury);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-pink-dark);
+  margin: 16px auto 4px;
+}
+
+.footer-family-names {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--theme-grey-medium);
+  margin-bottom: 14px;
+}
+
 .note-card-text {
   font-family: var(--font-serif);
   font-size: 15px;
@@ -1944,8 +1982,9 @@ body.video-active #weiAudioBtn {
   .section-corner-floral { width: 85px; }
   .card-corner-vine { width: 48px; }
 
-  .couple-headline { font-size: 48px; }
-  .ampersand { font-size: 28px; }
+  .couple-headline { font-size: 42px; line-height: 1.1; }
+  .couple-parentage { font-size: 13.5px; line-height: 1.35; padding: 0 8px; }
+  .ampersand { font-size: 26px; margin: 3px 0; }
   .ganesh-title { font-size: 20px; }
 
   .couple-section { padding: 45px 16px 50px; }
