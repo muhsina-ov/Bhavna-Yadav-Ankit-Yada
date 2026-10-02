@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BHAVYA & SANYAM WEDDING INVITATION — INTERACTIVE ENGINE
+   BHAVANA & ANKIT WEDDING INVITATION — INTERACTIVE ENGINE
    Pink & Grey Luxury Theme • Lotus Flower Timeline Scrolling
    ========================================================================== */
 
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const blessingCountElem = document.getElementById('blessing-count');
   const coupleContainer = document.querySelector('.couple-single-photo-wrap');
 
-  let blessingCount = parseInt(localStorage.getItem('bhavna_ankit_blessings') || localStorage.getItem('bhavya_sanyam_blessings') || '452', 10);
+  let blessingCount = parseInt(localStorage.getItem('bhavana_ankit_blessings') || localStorage.getItem('bhavna_ankit_blessings') || localStorage.getItem('bhavya_sanyam_blessings') || '452', 10);
   if (blessingCountElem) {
     blessingCountElem.textContent = blessingCount.toLocaleString();
   }
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (blessingCountElem) {
       blessingCountElem.textContent = blessingCount.toLocaleString();
     }
-    localStorage.setItem('bhavna_ankit_blessings', blessingCount.toString());
+    localStorage.setItem('bhavana_ankit_blessings', blessingCount.toString());
 
     if (showerBtn) {
       showerBtn.style.transform = 'scale(0.96)';

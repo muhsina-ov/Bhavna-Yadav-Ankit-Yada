@@ -192,9 +192,9 @@ def create_og_banner():
     t_draw.text((cx - s_w / 2 + 1, 112 + 1), sub_txt, font=font_sub, fill=(0, 0, 0, 200))
     t_draw.text((cx - s_w / 2, 112), sub_txt, font=font_sub, fill=(225, 195, 135, 230))
     
-    # 8. Couple Names: "BHAVYA & SANYAM"
-    name1 = "BHAVYA"
-    name2 = "SANYAM"
+    # 8. Couple Names: "BHAVANA & ANKIT"
+    name1 = "BHAVANA"
+    name2 = "ANKIT"
     amp = "&"
     
     b1 = font_cinzel_large.getbbox(name1)
