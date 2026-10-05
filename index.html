@@ -116,11 +116,10 @@
       <img class="hero-corner-floral top-right" src="images/cdn/noroot_2.png" alt="Floral Corner Bouquet" />
 
       <div class="hero-content">
-        <!-- Ganesh Invocation (Moved downward for optimal balance & elegance) -->
+        <!-- Ganesh Invocation with Guru Photo -->
         <div class="ganesh-invocation">
           <img class="ganesh-top-flourish" src="images/cdn/noroot_6.png" alt="Filigree Flourish" />
-          <div class="ganesh-title">Shree Ganeshaya Namah</div>
-          <div class="ganesh-sub">The Wedding Celebration Of</div>
+          <img class="guru-photo" src="images/cdn/guru-photo-enhanced.jpg" alt="With the Divine Blessings of Param Poojya Sadgurudev Shri Sudhanshu Ji Maharaj" />
         </div>
 
         <!-- Couple Names with Soft Script Typography & Family Heritage -->
@@ -242,16 +241,21 @@
         <img class="schedule-flourish-wing right" src="images/cdn/right-element_1.png" alt="" />
       </div>
       
-      <div class="section-subtitle">Auspicious Wedding Ceremonies • 26th November 2026</div>
+      <div class="section-subtitle">Auspicious Wedding Ceremonies • 25th & 26th November 2026</div>
 
       <!-- Lotus Flower Scrolling Timeline Architecture -->
       <div class="lotus-timeline-container" id="lotusTimeline">
         
-        <!-- Central Timeline Vertical Line -->
-        <div class="timeline-track-line" id="timelineTrackLine"></div>
+        <!-- Central Timeline Vertical Lines (Two separate tracks: Day 1 and Day 2, separated cleanly by date) -->
+        <div class="timeline-track-line track-line-day1" id="timelineTrackLine1"></div>
+        <div class="timeline-track-line track-line-day2" id="timelineTrackLine2"></div>
 
-        <!-- Movable Rose / Lotus Flower Element -->
-        <div class="scrolling-lotus-wrap" id="scrollingLotus" title="Drag to move rose or click any event" aria-label="Movable Rose Timeline Tracker">
+        <!-- Movable Rose / Lotus Flower Elements (Separate Rose for Day 1 and Day 2) -->
+        <div class="scrolling-lotus-wrap scrolling-lotus-day1" id="scrollingLotus1" title="Drag to move rose or click any event" aria-label="Movable Rose Timeline Tracker Day 1">
+          <img class="lotus-flower-img" src="images/cdn/rose_-_Copy.png" alt="Rose Flower" draggable="false" />
+          <div class="lotus-halo-pulse"></div>
+        </div>
+        <div class="scrolling-lotus-wrap scrolling-lotus-day2" id="scrollingLotus2" title="Drag to move rose or click any event" aria-label="Movable Rose Timeline Tracker Day 2">
           <img class="lotus-flower-img" src="images/cdn/rose_-_Copy.png" alt="Rose Flower" draggable="false" />
           <div class="lotus-halo-pulse"></div>
         </div>
@@ -259,19 +263,91 @@
         <!-- Event Nodes List -->
         <div class="timeline-events-list">
 
-          <!-- Wedding Dress Code Banner: Avoid Red on Marriage -->
-          <div class="wedding-dress-code-banner">
-            <div class="dress-code-badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              Wedding Attire Etiquette
+          <!-- DATE SEPARATOR: 25th November -->
+          <div class="date-separator date-separator-25">
+            <div class="date-separator-line"></div>
+            <div class="date-separator-pill">
+              <span class="date-separator-text">25th November 2026</span>
             </div>
-            <p class="dress-code-message">
-              We kindly request our beloved guests to <strong>avoid wearing shades of red or maroon</strong> for the wedding ceremony, as red is traditionally reserved for the bride.
-            </p>
+            <div class="date-separator-line"></div>
           </div>
 
-          <!-- Event 1: Baraat Swagat -->
-          <div class="lotus-event-row event-row-left" data-index="0">
+          <!-- 25th November Events -->
+          <!-- Event 1: Haldi (Tiny Yellow Theme) -->
+          <div class="lotus-event-row event-row-left event-haldi" data-index="0">
+            <div class="event-name-card haldi-card">
+              <span class="event-name-text haldi-text">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#D48296" style="display:inline-block;vertical-align:-1px;margin-right:4px;"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1s-1-.45-1-1V3c0-.55.45-1 1-1zm0 16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1zm10-7c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1s.45-1 1-1h2c.55 0 1 .45 1 1zM7 12c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1s.45-1 1-1h2c.55 0 1 .45 1 1zm12.07-6.07c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41l-1.41 1.41c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.41-1.41zM6.34 16.24c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41l-1.41 1.41c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.41-1.41zm12.73 2.83c-.39-.39-.39-1.02 0-1.41l1.41-1.41c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41l-1.41 1.41c-.39.39-1.02.39-1.41 0zM7.76 6.34c-.39-.39-.39-1.02 0-1.41l1.41-1.41c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41L7.76 6.34z"/></svg>Haldi
+              </span>
+              <span class="event-time haldi-time">11:00 AM</span>
+              <span class="haldi-attire-pill">Shades of Yellow</span>
+            </div>
+            <div class="event-timeline-node haldi-node">
+              <div class="node-inner-dot haldi-dot"></div>
+            </div>
+            <div class="event-empty-spacer"></div>
+          </div>
+
+          <!-- Event 2: Lunch -->
+          <div class="lotus-event-row event-row-right" data-index="1">
+            <div class="event-empty-spacer"></div>
+            <div class="event-timeline-node">
+              <div class="node-inner-dot"></div>
+            </div>
+            <div class="event-name-card">
+              <span class="event-name-text">Lunch</span>
+              <span class="event-time">1:00 PM</span>
+            </div>
+          </div>
+
+          <!-- Event 3: Engagement -->
+          <div class="lotus-event-row event-row-left" data-index="2">
+            <div class="event-name-card">
+              <span class="event-name-text">Engagement</span>
+              <span class="event-time">6:30 PM</span>
+            </div>
+            <div class="event-timeline-node">
+              <div class="node-inner-dot"></div>
+            </div>
+            <div class="event-empty-spacer"></div>
+          </div>
+
+          <!-- Event 4: Sangeet -->
+          <div class="lotus-event-row event-row-right" data-index="3">
+            <div class="event-empty-spacer"></div>
+            <div class="event-timeline-node">
+              <div class="node-inner-dot"></div>
+            </div>
+            <div class="event-name-card">
+              <span class="event-name-text">Sangeet</span>
+              <span class="event-time">8:00 PM</span>
+            </div>
+          </div>
+
+          <!-- Event 5: Dinner -->
+          <div class="lotus-event-row event-row-left" data-index="4">
+            <div class="event-name-card">
+              <span class="event-name-text">Dinner</span>
+              <span class="event-time">9:00 PM</span>
+            </div>
+            <div class="event-timeline-node">
+              <div class="node-inner-dot"></div>
+            </div>
+            <div class="event-empty-spacer"></div>
+          </div>
+
+          <!-- DATE SEPARATOR: 26th November (Clean divider without line running through) -->
+          <div class="date-separator date-separator-26">
+            <div class="date-separator-line"></div>
+            <div class="date-separator-pill">
+              <span class="date-separator-text">26th November 2026</span>
+            </div>
+            <div class="date-separator-line"></div>
+          </div>
+
+          <!-- 26th November Events -->
+          <!-- Event 6: Baraat Swagat -->
+          <div class="lotus-event-row event-row-left event-date-26" data-index="5">
             <div class="event-name-card">
               <span class="event-name-text">Baraat Swagat</span>
               <span class="event-time">11:00 AM</span>
@@ -282,8 +358,8 @@
             <div class="event-empty-spacer"></div>
           </div>
 
-          <!-- Event 2: Jaimala Ceremony -->
-          <div class="lotus-event-row event-row-right" data-index="1">
+          <!-- Event 7: Jaimala Ceremony -->
+          <div class="lotus-event-row event-row-right event-date-26" data-index="6">
             <div class="event-empty-spacer"></div>
             <div class="event-timeline-node">
               <div class="node-inner-dot"></div>
@@ -294,8 +370,8 @@
             </div>
           </div>
 
-          <!-- Event 3: Royal Lunch -->
-          <div class="lotus-event-row event-row-left" data-index="2">
+          <!-- Event 8: Royal Lunch -->
+          <div class="lotus-event-row event-row-left event-date-26" data-index="7">
             <div class="event-name-card">
               <span class="event-name-text">Royal Lunch</span>
               <span class="event-time">1:00 PM</span>
@@ -306,8 +382,8 @@
             <div class="event-empty-spacer"></div>
           </div>
 
-          <!-- Event 4: Sacred Pheras -->
-          <div class="lotus-event-row event-row-right" data-index="3">
+          <!-- Event 9: Sacred Pheras -->
+          <div class="lotus-event-row event-row-right event-date-26" data-index="8">
             <div class="event-empty-spacer"></div>
             <div class="event-timeline-node">
               <div class="node-inner-dot"></div>
@@ -318,8 +394,8 @@
             </div>
           </div>
 
-          <!-- Event 5: Doli & Vidai -->
-          <div class="lotus-event-row event-row-left" data-index="4">
+          <!-- Event 10: Doli & Vidai -->
+          <div class="lotus-event-row event-row-left event-date-26" data-index="9">
             <div class="event-name-card">
               <span class="event-name-text">Doli &amp; Vidai</span>
               <span class="event-time">6:00 PM</span>
@@ -391,16 +467,6 @@
           <p class="note-card-text">
             <strong>MR. Ram Sanjivan Yadav &amp; MRS. Rani Yadav</strong><br>
             Your gracious presence and heartfelt blessings are the greatest gifts we treasure.
-          </p>
-        </div>
-
-        <!-- Card 2: Wedding Dress Code (Avoid Red on Marriage) -->
-        <div class="note-card note-card-dresscode">
-          <img class="card-corner-vine left" src="images/cdn/noroot_14.png" alt="Floral Vine" />
-          <img class="card-corner-vine right" src="images/cdn/noroot_10.png" alt="Floral Vine" />
-          <div class="note-card-title">Dress Code</div>
-          <p class="note-card-text">
-            We kindly ask our cherished guests to avoid wearing <strong>deep red or maroon</strong> attire for the marriage celebration, as it is traditionally reserved for the bride.
           </p>
         </div>
       </div>

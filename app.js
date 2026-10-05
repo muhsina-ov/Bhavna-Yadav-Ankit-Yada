@@ -489,24 +489,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   /* ------------------------------------------------------------------------
-     6. MOVABLE ROSE / LOTUS FLOWER TIMELINE ENGINE
+     6. MOVABLE ROSE / LOTUS FLOWER TIMELINE ENGINE (DUAL LOTUS FOR 2 DATES)
      (Smooth scroll-driven movement, click-to-glide, and touch/drag interactions)
      ------------------------------------------------------------------------ */
   const timelineContainer = document.getElementById('lotusTimeline');
-  const scrollingLotus    = document.getElementById('scrollingLotus');
+  const scrollingLotus1   = document.getElementById('scrollingLotus1');
+  const scrollingLotus2   = document.getElementById('scrollingLotus2');
+  const fallbackLotus     = document.getElementById('scrollingLotus');
   const eventRows         = document.querySelectorAll('.lotus-event-row');
 
-  if (timelineContainer && scrollingLotus && eventRows.length > 0) {
+  if (timelineContainer && ((scrollingLotus1 && scrollingLotus2) || fallbackLotus) && eventRows.length > 0) {
     let ticking = false;
-    let isDraggingLotus = false;
-    let dragStartY = 0;
-    let lotusStartTop = 0;
 
     function getNodeCenterY(node) {
+      if (!node) return 0;
       const nodeRect = node.getBoundingClientRect();
       const contRect = timelineContainer.getBoundingClientRect();
       return (nodeRect.top + nodeRect.height / 2) - contRect.top;
     }
+
+    const day1Rows = Array.from(document.querySelectorAll('.lotus-event-row:not(.event-date-26)'));
+    const day2Rows = Array.from(document.querySelectorAll('.lotus-event-row.event-date-26'));
 
     function updateTrackLines() {
       const track1 = document.getElementById('timelineTrackLine1');
@@ -536,12 +539,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateTrackLines);
     window.addEventListener('load', updateTrackLines);
 
-    function updateLotusPosition(targetProgress = null, smooth = false) {
-      if (isDraggingLotus) return;
+    // Track dragging states for both lotuses
+    let isDraggingLotus1 = false;
+    let dragStartY1 = 0;
+    let lotusStartTop1 = 0;
 
-      const firstNode = eventRows[0].querySelector('.event-timeline-node');
-      const lastNode  = eventRows[eventRows.length - 1].querySelector('.event-timeline-node');
+    let isDraggingLotus2 = false;
+    let dragStartY2 = 0;
+    let lotusStartTop2 = 0;
 
+    function updateLotusTrack(lotusEl, rows, targetProgress = null, smooth = false) {
+      if (!lotusEl || rows.length === 0) return;
+
+      const firstNode = rows[0].querySelector('.event-timeline-node');
+      const lastNode  = rows[rows.length - 1].querySelector('.event-timeline-node');
       if (!firstNode || !lastNode) return;
 
       const topNodeY    = getNodeCenterY(firstNode);
@@ -549,7 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalSpan   = bottomNodeY - topNodeY;
 
       let progress = 0;
-
       if (targetProgress !== null) {
         progress = Math.max(0, Math.min(1, targetProgress));
       } else {
@@ -565,35 +575,35 @@ document.addEventListener('DOMContentLoaded', () => {
         progress = Math.max(0, Math.min(1, progress));
       }
 
-      const currentLotusY = topNodeY + progress * totalSpan;
-      
+      const currentY = topNodeY + progress * totalSpan;
+
       if (smooth) {
-        scrollingLotus.style.transition = 'top 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        lotusEl.style.transition = 'top 0.45s cubic-bezier(0.2, 0.8, 0.2, 1)';
         setTimeout(() => {
-          scrollingLotus.style.transition = '';
+          lotusEl.style.transition = '';
         }, 500);
       } else {
-        scrollingLotus.style.transition = 'top 0.12s ease-out';
+        lotusEl.style.transition = 'top 0.12s ease-out';
       }
 
-      scrollingLotus.style.top = `${currentLotusY}px`;
+      lotusEl.style.top = `${currentY}px`;
 
-      // Activate event rows as the rose moves over them
+      // Activate rows in this day track
       let closestRow = null;
       let minDistance = Infinity;
 
-      eventRows.forEach((row) => {
+      rows.forEach((row) => {
         const node = row.querySelector('.event-timeline-node');
         if (node) {
           const nodeY = getNodeCenterY(node);
-          const dist = Math.abs(currentLotusY - nodeY);
+          const dist = Math.abs(currentY - nodeY);
 
           if (dist < minDistance) {
             minDistance = dist;
             closestRow = row;
           }
 
-          if (currentLotusY >= nodeY - 20) {
+          if (currentY >= nodeY - 20) {
             row.classList.add('active');
           } else {
             row.classList.remove('active');
@@ -602,15 +612,27 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (closestRow && minDistance < 40) {
-        eventRows.forEach(r => r.classList.remove('active-current'));
+        rows.forEach(r => r.classList.remove('active-current'));
         closestRow.classList.add('active-current', 'active');
       }
     }
 
+    function updateAllLotusPositions() {
+      if (scrollingLotus1 && !isDraggingLotus1) {
+        updateLotusTrack(scrollingLotus1, day1Rows);
+      }
+      if (scrollingLotus2 && !isDraggingLotus2) {
+        updateLotusTrack(scrollingLotus2, day2Rows);
+      }
+      if (fallbackLotus && !isDraggingLotus1) {
+        updateLotusTrack(fallbackLotus, Array.from(eventRows));
+      }
+    }
+
     function onScroll() {
-      if (!ticking && !isDraggingLotus) {
+      if (!ticking && !isDraggingLotus1 && !isDraggingLotus2) {
         requestAnimationFrame(() => {
-          updateLotusPosition();
+          updateAllLotusPositions();
           ticking = false;
         });
         ticking = true;
@@ -621,75 +643,139 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', onScroll, { passive: true });
 
     // Initial positioning
-    setTimeout(() => updateLotusPosition(), 250);
+    setTimeout(() => {
+      updateTrackLines();
+      updateAllLotusPositions();
+    }, 250);
 
-    // 1. Click/Tap on Any Event Row to Glide Rose to that Event
-    eventRows.forEach((row, idx) => {
+    // 1. Click/Tap on Any Event Row to Glide Respective Rose to that Event
+    day1Rows.forEach((row, idx) => {
       row.style.cursor = 'pointer';
       row.addEventListener('click', (e) => {
         e.preventDefault();
-        const totalRows = eventRows.length;
-        const targetProgress = idx / (totalRows - 1);
-        updateLotusPosition(targetProgress, true);
-
-        // Highlight clicked row
-        eventRows.forEach(r => r.classList.remove('active-current'));
+        const total = day1Rows.length;
+        const targetProgress = total > 1 ? idx / (total - 1) : 0;
+        if (scrollingLotus1) {
+          updateLotusTrack(scrollingLotus1, day1Rows, targetProgress, true);
+        } else if (fallbackLotus) {
+          updateLotusTrack(fallbackLotus, Array.from(eventRows), targetProgress, true);
+        }
+        day1Rows.forEach(r => r.classList.remove('active-current'));
         row.classList.add('active-current', 'active');
       });
     });
 
-    // 2. Interactive Drag & Touch Support on the Rose
-    scrollingLotus.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      isDraggingLotus = true;
-      scrollingLotus.classList.add('dragging');
-      dragStartY = e.clientY;
-      lotusStartTop = parseFloat(scrollingLotus.style.top) || 0;
-      scrollingLotus.setPointerCapture(e.pointerId);
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      if (!isDraggingLotus) return;
-      e.preventDefault();
-
-      const firstNode = eventRows[0].querySelector('.event-timeline-node');
-      const lastNode  = eventRows[eventRows.length - 1].querySelector('.event-timeline-node');
-      if (!firstNode || !lastNode) return;
-
-      const topNodeY    = getNodeCenterY(firstNode);
-      const bottomNodeY = getNodeCenterY(lastNode);
-
-      const deltaY = e.clientY - dragStartY;
-      let newTop = lotusStartTop + deltaY;
-      newTop = Math.max(topNodeY, Math.min(bottomNodeY, newTop));
-
-      scrollingLotus.style.transition = 'none';
-      scrollingLotus.style.top = `${newTop}px`;
-
-      // Update active rows while dragging
-      eventRows.forEach((row) => {
-        const node = row.querySelector('.event-timeline-node');
-        if (node) {
-          const nodeY = getNodeCenterY(node);
-          if (newTop >= nodeY - 20) {
-            row.classList.add('active');
-          } else {
-            row.classList.remove('active');
-          }
+    day2Rows.forEach((row, idx) => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', (e) => {
+        e.preventDefault();
+        const total = day2Rows.length;
+        const targetProgress = total > 1 ? idx / (total - 1) : 0;
+        if (scrollingLotus2) {
+          updateLotusTrack(scrollingLotus2, day2Rows, targetProgress, true);
+        } else if (fallbackLotus) {
+          const overallIdx = day1Rows.length + idx;
+          updateLotusTrack(fallbackLotus, Array.from(eventRows), overallIdx / (eventRows.length - 1), true);
         }
+        day2Rows.forEach(r => r.classList.remove('active-current'));
+        row.classList.add('active-current', 'active');
       });
     });
 
-    function endDrag(e) {
-      if (!isDraggingLotus) return;
-      isDraggingLotus = false;
-      scrollingLotus.classList.remove('dragging');
-      scrollingLotus.style.transition = '';
+    // 2. Drag Setup Helper for a Lotus Element
+    function setupLotusDrag(lotusEl, rows, getIsDragging, setIsDragging, getStartY, setStartY, getStartTop, setStartTop) {
+      if (!lotusEl || rows.length === 0) return;
+
+      lotusEl.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+        lotusEl.classList.add('dragging');
+        setStartY(e.clientY);
+        setStartTop(parseFloat(lotusEl.style.top) || 0);
+        lotusEl.setPointerCapture(e.pointerId);
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!getIsDragging()) return;
+        e.preventDefault();
+
+        const firstNode = rows[0].querySelector('.event-timeline-node');
+        const lastNode  = rows[rows.length - 1].querySelector('.event-timeline-node');
+        if (!firstNode || !lastNode) return;
+
+        const topNodeY    = getNodeCenterY(firstNode);
+        const bottomNodeY = getNodeCenterY(lastNode);
+
+        const deltaY = e.clientY - getStartY();
+        let newTop = getStartTop() + deltaY;
+        newTop = Math.max(topNodeY, Math.min(bottomNodeY, newTop));
+
+        lotusEl.style.transition = 'none';
+        lotusEl.style.top = `${newTop}px`;
+
+        rows.forEach((row) => {
+          const node = row.querySelector('.event-timeline-node');
+          if (node) {
+            const nodeY = getNodeCenterY(node);
+            if (newTop >= nodeY - 20) {
+              row.classList.add('active');
+            } else {
+              row.classList.remove('active');
+            }
+          }
+        });
+      });
+
+      function endDrag() {
+        if (!getIsDragging()) return;
+        setIsDragging(false);
+        lotusEl.classList.remove('dragging');
+        lotusEl.style.transition = '';
+      }
+
+      window.addEventListener('pointerup', endDrag);
+      window.addEventListener('pointercancel', endDrag);
     }
 
-    window.addEventListener('pointerup', endDrag);
-    window.addEventListener('pointercancel', endDrag);
+    if (scrollingLotus1) {
+      setupLotusDrag(
+        scrollingLotus1,
+        day1Rows,
+        () => isDraggingLotus1,
+        (val) => { isDraggingLotus1 = val; },
+        () => dragStartY1,
+        (val) => { dragStartY1 = val; },
+        () => lotusStartTop1,
+        (val) => { lotusStartTop1 = val; }
+      );
+    }
+
+    if (scrollingLotus2) {
+      setupLotusDrag(
+        scrollingLotus2,
+        day2Rows,
+        () => isDraggingLotus2,
+        (val) => { isDraggingLotus2 = val; },
+        () => dragStartY2,
+        (val) => { dragStartY2 = val; },
+        () => lotusStartTop2,
+        (val) => { lotusStartTop2 = val; }
+      );
+    }
+
+    if (fallbackLotus) {
+      setupLotusDrag(
+        fallbackLotus,
+        Array.from(eventRows),
+        () => isDraggingLotus1,
+        (val) => { isDraggingLotus1 = val; },
+        () => dragStartY1,
+        (val) => { dragStartY1 = val; },
+        () => lotusStartTop1,
+        (val) => { lotusStartTop1 = val; }
+      );
+    }
   }
 
 });
