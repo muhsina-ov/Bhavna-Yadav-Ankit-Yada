@@ -514,6 +514,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTrackLines() {
       const track1 = document.getElementById('timelineTrackLine1');
       const track2 = document.getElementById('timelineTrackLine2');
+      const trackSingle = document.getElementById('timelineTrackLine');
+
+      if (trackSingle && eventRows.length > 0) {
+        const firstNode = eventRows[0].querySelector('.event-timeline-node');
+        const lastNode  = eventRows[eventRows.length - 1].querySelector('.event-timeline-node');
+        if (firstNode && lastNode) {
+          const top = getNodeCenterY(firstNode);
+          const bot = getNodeCenterY(lastNode);
+          trackSingle.style.top = `${top}px`;
+          trackSingle.style.height = `${Math.max(0, bot - top)}px`;
+        }
+      }
 
       if (!track1 && !track2) return;
 
