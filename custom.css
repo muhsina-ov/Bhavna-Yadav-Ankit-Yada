@@ -1665,6 +1665,17 @@ body.video-active #weiAudioBtn {
   gap: 8px;
 }
 
+.venue-address-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.venue-address-link:hover {
+  color: var(--theme-pink-dark);
+  transform: translateY(-1px);
+}
+
 .venue-address i {
   color: var(--theme-pink-primary);
 }
