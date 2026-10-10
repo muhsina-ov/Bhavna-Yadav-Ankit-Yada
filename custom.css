@@ -1383,14 +1383,19 @@ body.video-active #weiAudioBtn {
 }
 
 .lotus-event-row.event-haldi .haldi-text {
-  color: var(--theme-pink-deep);
-  background: var(--pink-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--theme-pink-deep) !important;
+  -webkit-text-fill-color: var(--theme-pink-deep) !important;
+  background: none !important;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.lotus-event-row.event-haldi.active .haldi-text,
+.lotus-event-row.event-haldi.active-current .haldi-text {
+  color: var(--theme-pink-dark) !important;
+  -webkit-text-fill-color: var(--theme-pink-dark) !important;
 }
 
 .haldi-sun-icon {
